@@ -10,6 +10,8 @@ import java.util.Hashtable;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.lang.String;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  *
@@ -18,9 +20,9 @@ import java.lang.String;
 public class Tabela {
 
     private String nome;
-    private java.util.HashMap<String, String> atributos;
+    private java.util.Map<String, String> atributos;
 
-    public Tabela(String nome, HashMap<String, String> lista) {
+    public Tabela(String nome, LinkedHashMap<String, String> lista) {
         this.nome = nome;
         this.atributos = lista;
 
@@ -34,7 +36,7 @@ public class Tabela {
     public void imprimeAtributos(Tabela tab) {
         String conjunto="";
 
-        for (HashMap.Entry<String, String> entry : tab.atributos.entrySet()) {
+        for (Map.Entry<String, String> entry : tab.atributos.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             
@@ -52,7 +54,7 @@ public class Tabela {
        
        String conjunto= tab.nome.toUpperCase()+" = ";
 
-        for (HashMap.Entry<String, String> entry : tab.atributos.entrySet()) {
+        for (Map.Entry<String, String> entry : tab.atributos.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             
