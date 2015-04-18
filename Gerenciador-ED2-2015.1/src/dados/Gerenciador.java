@@ -167,8 +167,8 @@ public class Gerenciador {
         System.out.println((char) 27 + "[33m██████████████████████" + (char) 27 + "[0m");
     }
 
-    public static void criaTabela(Tabela tab, List<Tabela> tabelas, Scanner teclado, LinkedHashMap<String,String> lista) throws JSONException, Exception {
-        lista = new LinkedHashMap<String,String>();
+    public static void criaTabela(Tabela tab, List<Tabela> tabelas, Scanner teclado, LinkedHashMap<String, String> lista) throws JSONException, Exception {
+        lista = new LinkedHashMap<String, String>();
         String nomeTabela, atr, tipo, yesOrNo, chave, tipoChave;
         boolean inserindo;
         System.out.println("_____________________________________");
@@ -213,22 +213,31 @@ public class Gerenciador {
         salvaTabela(nomeTabela);
         salvaAtributos(lista, nomeTabela);
         //tab = new Tabela(nomeTabela.toUpperCase(), lista);
-       // tabelas.add(tab);
+        // tabelas.add(tab);
     }
 
     public static void mostrarAtributos(String nomeTabela) throws FileNotFoundException, IOException {
         DataInputStream in = null;
         try {
             in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
-            System.out.println("██████ TABELA " + nomeTabela.toUpperCase() + " ██████");
-            System.out.println("--------------------------------------------------------------------");
-            //pega o atributo chave que é sempre o primeiro
-            System.out.println((char) 27 + "[0;41m[CHAVE]  "+(char) 27 + "[0m"+in.readUTF().toUpperCase()+"              "+in.readUTF().toUpperCase()); //nome
-            System.out.println("⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻");
-            while (true) {
 
-               System.out.println(in.readUTF().toUpperCase()+"           "+in.readUTF().toUpperCase()); //nome | tipo
-                System.out.println("⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻");
+            String alinhar = "| %-20s | %-20s |%n";
+            String alinhar2 = "| %-40s    |%n";
+            String alinhar3 = "| %-20s | %-20s |";
+            System.out.format("+---------------------------------------------+%n");
+            System.out.printf(alinhar2,"TABELA " + nomeTabela.toUpperCase());
+            System.out.format("+---------------------------------------------+%n");
+            System.out.printf("|       Atributo       |          Tipo        |%n");
+            System.out.format("+----------------------+----------------------+%n");
+
+            System.out.format(alinhar3,  in.readUTF().toUpperCase(), in.readUTF().toUpperCase());
+            System.out.format((char)27 +"[0;41m C H A V E %n" +(char)27+"[0m");
+            System.out.format("+----------------------+----------------------+%n");
+
+            while (true) {
+                System.out.format(alinhar, in.readUTF().toUpperCase(), in.readUTF().toUpperCase());
+                System.out.format("+----------------------+----------------------+%n");
+                
 
             }
 
@@ -250,12 +259,17 @@ public class Gerenciador {
         DataInputStream in = null;
         try {
             in = new DataInputStream(new BufferedInputStream(new FileInputStream("tabelas.dat")));
-            System.out.println("██████ TABELAS ██████");
-            System.out.println("----------------------------");
-            while (true) {
 
-                System.out.println(in.readUTF().toUpperCase());
-                System.out.println("⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻");
+            String alinhar = "| %-25s |%n";
+
+            System.out.format("+---------------------------+%n");
+            System.out.printf("|████   TABELAS    ████|%n");
+            System.out.format("+---------------------------+%n");
+
+            //System.out.format("+-----------------+----------------------+%n");
+            while (true) {
+                System.out.format(alinhar, in.readUTF().toUpperCase());
+                System.out.format("+---------------------------+%n");
 
             }
 
