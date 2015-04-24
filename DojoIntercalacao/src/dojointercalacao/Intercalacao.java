@@ -27,26 +27,34 @@ public class Intercalacao {
         try{
             while(nomeParticoes.size()>1){
                 ins = new DataInputStream[N-1];
-                for(DataInputStream ent : ins){
-                    ent = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeParticoes.get(0))));
+                ins[0] = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeParticoes.get(0))));
+                nomeParticoes.remove(0);
+                ins[1] = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeParticoes.get(0))));
+                nomeParticoes.remove(0);
+                ins[2] = null;
+                if(nomeParticoes.size()>=3){
+                    ins[2] = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeParticoes.get(0))));
                     nomeParticoes.remove(0);
                 }
-                do {
-                    for(int i=0; i<N-1; i++) {
-                        cs[i] = Cliente.le(ins[i]);
-                        if(cs[i].codCliente==Integer.MAX_VALUE) isEOF = true;
-                    }
-                    ordena(cs, 0 , cs.length-1);
-                    aux = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("aux"+ cont +".dat")));
-                    nomeParticoes.add("aux"+cont+".dat");
-                    cont++;
-                    for( Cliente c : cs ){
-                        c.salva(aux);
-                    }
-                    Cliente m = new Cliente(Integer.MAX_VALUE,"","");
-                    m.salva(aux);
-                    aux.close();
-                }while(!isEOF);
+                aux = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("aux"+cont+".dat")));
+                if(ins[2]!=null){
+                    do {
+                        for( int i = 0 ; i<ins.length ; i++ ) cs[i] = Cliente.le(ins[i]);
+                        ordena(cs, 0, cs.length-1);
+                        for(Cliente c : cs) c.salva(aux);
+                    }while(cs[0].codCliente!=Integer.MAX_VALUE||cs[1].codCliente!=Integer.MAX_VALUE||cs[2].codCliente!=Integer.MAX_VALUE);
+                } else {
+                    do {
+                        for( int i = 0 ; i<2 ; i++ ) cs[i] = Cliente.le(ins[i]);
+                        ordena(cs, 0, cs.length-2);
+                        for(Cliente c : cs) c.salva(aux);
+                    }while(cs[0].codCliente!= Integer.MAX_VALUE || cs[1].codCliente != cs[0].codCliente);
+                }
+                Cliente max = new Cliente(Integer.MAX_VALUE, "", "");
+                max.salva(aux);
+                nomeParticoes.add("aux" + cont +".dat");
+                cont++;
+                aux.close();
             }
             if(nomeParticoes.size()==1){
                 in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeParticoes.get(0))));
@@ -59,7 +67,7 @@ public class Intercalacao {
         } finally {
             if(aux!=null) aux.close();
             if(out!=null) out.close();
-            if(in!=null){
+            if(ins!=null){
                 for(DataInputStream ent : ins){
                     if(ent != null) ent.close();
                 }
