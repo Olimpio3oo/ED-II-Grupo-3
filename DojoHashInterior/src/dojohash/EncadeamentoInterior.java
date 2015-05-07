@@ -47,6 +47,7 @@ public class EncadeamentoInterior {
      * encadeada, ou -1 se não encontrou endereço livre
      */
     public Result busca(int codCli, String nomeArquivoHash) throws Exception {
+        
         int registro = codCli % 7;
         int a = 0;
         int end = 0;
@@ -106,8 +107,52 @@ public class EncadeamentoInterior {
      * (inclusive em caso de overflow)
      */
     public int insere(int codCli, String nomeCli, String nomeArquivoHash) throws Exception {
-        //TODO: Inserir aqui o código do algoritmo de inserção
-        return Integer.MAX_VALUE;
+             Result res = busca(codCli, nomeArquivoHash);
+        int end = res.end;
+        int j = end;
+        int controle = res.a;
+
+        if (controle == 1) {
+            return -1;
+        }
+
+        RandomAccessFile raf = null;
+        try {
+            int i = 0;
+            raf = new RandomAccessFile(new File(nomeArquivoHash), "rw");
+            while (i < 7) {
+                Cliente novo = new Cliente(codCli, nomeCli, j, Cliente.OCUPADO);
+                raf.seek(j * Cliente.tamanhoRegistro);
+                Cliente chave = Cliente.le(raf);
+                raf.seek(j * Cliente.tamanhoRegistro);
+                if (chave.flag == Cliente.LIBERADO) {
+                    if (chave.prox != j) {
+                        novo.prox = chave.prox;
+                    }
+                    novo.salva(raf);
+                    if (j != end) {
+                        Cliente aux = Cliente.le(raf);
+                        aux.prox = j;
+                        aux.salva(raf);
+                    }
+                    break;
+                } else {
+                    if (j != 6) {
+                        j++;
+                    } else {
+                        j = 0;
+                    }
+                }
+                i++;
+            }
+        } catch (Exception e) {
+
+        } finally {
+            if (raf != null) {
+                raf.close();
+            }
+        }
+        return j;
     }
 
     /**
@@ -117,9 +162,32 @@ public class EncadeamentoInterior {
      * @param nomeArquivoHash nome do arquivo que contém a tabela Hash
      * @return endereço do cliente que foi excluído, -1 se cliente não existe
      */
-    public int exclui(int codCli, String nomeArquivoHash) {
-        //TODO: Inserir aqui o código do algoritmo de remoção
-        return Integer.MAX_VALUE;
+    public int exclui(int codCli, String nomeArquivoHash) throws Exception {
+        Result res = busca(codCli, nomeArquivoHash);
+        int end = res.end;
+        int j = end;
+        int controle = res.a;
+
+        if (controle == 2) {
+            return -1;
+        }
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(new File(nomeArquivoHash), "rw");
+            raf.seek(j * Cliente.tamanhoRegistro);
+            Cliente c = Cliente.le(raf);
+            c.flag = Cliente.LIBERADO;
+            raf.seek(j * Cliente.tamanhoRegistro);
+            c.salva(raf);
+
+        } catch (Exception e) {
+
+        } finally {
+            if (raf != null) {
+                raf.close();
+            }
+        }
+        return end;
     }
 
 }

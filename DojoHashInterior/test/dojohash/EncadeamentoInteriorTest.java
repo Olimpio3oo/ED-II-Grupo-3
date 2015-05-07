@@ -194,7 +194,7 @@ public class EncadeamentoInteriorTest {
   /**
      * Testa inserção de registro com chave que já existe
      */
-    //@Test
+    @Test
     public void testaInsereChaveExistente() throws FileNotFoundException, Exception {
         tabHash.add(new Cliente(49,  "Joao      ", 0, Cliente.OCUPADO));
         tabHash.add(new Cliente(-1,  "          ", 1, Cliente.LIBERADO));
@@ -214,7 +214,7 @@ public class EncadeamentoInteriorTest {
     /**
      * Testa inserção no final da lista encadeada
      */
-    //@Test
+    @Test
     
     public void testaInsereFinalLista() throws FileNotFoundException, Exception {
         tabHash.add(new Cliente(49,  "Joao      ", 0, Cliente.OCUPADO));
@@ -247,7 +247,7 @@ public class EncadeamentoInteriorTest {
     /**
      * Testa inserção no de registro em espaco vazio deixado por registro excluído
      */
-    //@Test
+    @Test
     public void testaInsereEspacoVazio() throws FileNotFoundException, Exception {
         tabHash.add(new Cliente(49,  "Joao      ", 0, Cliente.OCUPADO));
         tabHash.add(new Cliente(-1,  "          ", 1, Cliente.LIBERADO));
@@ -276,7 +276,7 @@ public class EncadeamentoInteriorTest {
     /**
      * Testa exclusão de chave não existente
      */
-    //@Test
+    @Test
     public void testaExclusaoChaveInexistente() throws FileNotFoundException, Exception {
         tabHash.add(new Cliente(49,  "Joao      ", 0, Cliente.OCUPADO));
         tabHash.add(new Cliente(-1,  "          ", 1, Cliente.LIBERADO));
@@ -297,7 +297,7 @@ public class EncadeamentoInteriorTest {
     /**
      * Testa exclusão do primeiro no da lista encadeada 
      */
-    //@Test
+    @Test
     public void testaExclusaoPrimeiroNo() throws FileNotFoundException, Exception {
         tabHash.add(new Cliente(49,  "Joao      ", 0, Cliente.OCUPADO));
         tabHash.add(new Cliente(-1,  "          ", 1, Cliente.LIBERADO));
@@ -327,7 +327,7 @@ public class EncadeamentoInteriorTest {
     /**
      * Testa exclusão do ultimo no da lista encadeada de um determinado compartimento
      */
-    //@Test
+    @Test
     public void testaExclusaoUltimoNo() throws FileNotFoundException, Exception {
         tabHash.add(new Cliente(49,  "Joao      ", 0, Cliente.OCUPADO));
         tabHash.add(new Cliente(-1,  "          ", 1, Cliente.LIBERADO));
