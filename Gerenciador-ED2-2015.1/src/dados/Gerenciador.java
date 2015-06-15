@@ -36,7 +36,7 @@ public class Gerenciador {
         //mostra um cabeçalho
         header();
 
-        //Inicializa variavéis 
+        //Inicializa variavéis ;
         boolean rodando = true;
         boolean inserindo = true;
         Tabela tab = new Tabela();
