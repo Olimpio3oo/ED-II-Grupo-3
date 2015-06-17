@@ -3,22 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dados;
 
-import java.util.ArrayList;
-
 /**
- * 
- * @author Romulo Mourão
+ *
+ * @author Beatriz
  */
-public class Registros {
-    private String nomeTab;
-    private ArrayList<String> dados;
+public interface Tipo {
     
-    public Registros(){
-        
-    }
+    @Override
+    public abstract String toString(); 
+    
 }
-
-

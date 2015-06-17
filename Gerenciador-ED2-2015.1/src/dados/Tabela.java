@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public class Tabela {
 
-    private String nome;
+    public String nome;
     private java.util.Map<String, String> atributos;
 
     public Tabela(String nome, LinkedHashMap<String, String> lista) {
