@@ -11,7 +11,7 @@ import java.io.RandomAccessFile;
 
 /**
  *
- * @author vanessa
+ * @author G3
  */
 public class CompartimentoHash implements Entidade{
 
@@ -30,7 +30,7 @@ public class CompartimentoHash implements Entidade{
      * Salva um Compartimento no arquivo out, na posição atual do cursor
      * @param out aquivo onde os dados serão gravados
      */
-   
+    @Override
     public void salva(RandomAccessFile out) throws IOException {
         out.writeInt(prox);        
     }

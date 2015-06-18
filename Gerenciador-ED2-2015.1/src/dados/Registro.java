@@ -19,14 +19,17 @@ import java.util.Date;
  */
 public class Registro {
 
+    public int chave;
     public ArrayList<Tipo> atributos = new ArrayList<>();
-
-    public static boolean LIBERADO = true;
-    public static boolean OCUPADO = false;
-    public int tamanhoRegistro;
     public boolean flag;
     public int prox;
-    public int chave;
+    
+    public int tamanhoRegistro; //em bytes 
+    
+    
+    
+    public static boolean LIBERADO = true;
+    public static boolean OCUPADO = false;
 
     public Registro() {
 

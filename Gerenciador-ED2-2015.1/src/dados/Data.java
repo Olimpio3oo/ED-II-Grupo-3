@@ -15,7 +15,7 @@ import java.util.Date;
  */
 public class Data implements Tipo {
     
-    public Date data = new Date ("03/16/2015");
+    public Date data ;
     
     public Data (Date data){
         this.data = data;
