@@ -4,6 +4,7 @@
  */
 package dados;
 
+import static dados.Registro.tamanhoReg;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -55,7 +56,7 @@ public class EncadeamentoExterior {
         RandomAccessFile tabelaHash = new RandomAccessFile(new File(nomeArquivoHash), "rw");
         RandomAccessFile arquivo = new RandomAccessFile(new File(nomeArquivoDados), "rw");
         DataInputStream atributos = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
-        
+
         int tam = Registro.tamanhoReg(nomeTabela);
         try {
 
@@ -67,7 +68,7 @@ public class EncadeamentoExterior {
             if (compartimento.prox == -1) {
                 return -1;
             }
-            Registro registro = Registro.le(atributos, arquivo, nomeTabela);
+            Registro registro = Registro.le(arquivo, nomeTabela);
             arquivo.seek(compartimento.prox * tam);
 
             int anterior = -1;
@@ -78,7 +79,7 @@ public class EncadeamentoExterior {
                 while (registro.prox != -1 && registro.chave != chave) {
                     anterior = registro.prox;
                     arquivo.seek(anterior * tam);
-                    registro = Registro.le(atributos, arquivo, nomeTabela);
+                    registro = Registro.le(arquivo, nomeTabela);
 
                 }
                 if (registro.chave == chave && registro.flag == registro.OCUPADO) {
@@ -89,7 +90,7 @@ public class EncadeamentoExterior {
                         while (registro.prox != -1) {
                             anterior = registro.prox;
                             arquivo.seek(anterior * tam);
-                            registro = Registro.le(atributos, arquivo, nomeTabela);
+                            registro = Registro.le(arquivo, nomeTabela);
                             if (registro.chave == chave && registro.flag == registro.OCUPADO) {
 
                                 return anterior;
@@ -122,510 +123,550 @@ public class EncadeamentoExterior {
      * @return endereço onde o cliente foi inserido, -1 se não conseguiu inserir
      * @throws java.lang.Exception
      */
-    //public int insere(int chave, ArrayList<Tipo> atr, String nomeArquivoHash, String nomeArquivoDados, String nomeTabela, int numRegistros) throws Exception {
-    public int insere( Registro registroInserir, String nomeArquivoHash, String nomeArquivoDados,ArrayList<String> tipos) throws Exception {
-        //TODO: Inserir aqui o código do algoritmo de inserção
+    public int insere(int chave, ArrayList<Tipo> atr, String nomeArquivoHash, String nomeArquivoDados, String nomeTabela) throws Exception {
+    //public int insere( Registro registroInserir, String nomeArquivoHash, String nomeArquivoDados,ArrayList<String> tipos) throws Exception {
+        /*//TODO: Inserir aqui o código do algoritmo de inserção
         
-        //Declarações de variáveis 
-        RandomAccessFile tabelaHash = new RandomAccessFile(new File(nomeArquivoHash), "rw"); //abrindo tabela hash
-        RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(nomeArquivoDados), "rw"); //abrindo o arquivo de registros
-        int qtdRegistros = 0;
-        int i = 1; //auxiliar para percorrer arraylist tipos
-        int termina = 0 ;//auxiliar de parada 
-        int atualAnterior ; // auxiliar para calcular o seek
+         //Declarações de variáveis 
+         RandomAccessFile tabelaHash = new RandomAccessFile(new File(nomeArquivoHash), "rw"); //abrindo tabela hash
+         RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(nomeArquivoDados), "rw"); //abrindo o arquivo de registros
+         int qtdRegistros = 0;
+         int i = 1; //auxiliar para percorrer arraylist tipos
+         int termina = 0 ;//auxiliar de parada 
+         int atualAnterior ; // auxiliar para calcular o seek
         
         
-        //Calcula a hashCode
-        int hashCode = registroInserir.chave%7;
+         //Calcula a hashCode
+         int hashCode = registroInserir.chave%7;
         
-        //Colsultar na tabela se aquela posição do hashCode está livre
-        tabelaHash.seek(hashCode * 4); //o tamanho do registro na tabela hash é sempre 4
-        int posicaoHash = tabelaHash.readInt(); //lendo o registro 
+         //Colsultar na tabela se aquela posição do hashCode está livre
+         tabelaHash.seek(hashCode * 4); //o tamanho do registro na tabela hash é sempre 4
+         int posicaoHash = tabelaHash.readInt(); //lendo o registro 
         
-        try{
-                //consultar quantros registros já tem no arquivo
-                while(true){
-                    arquivoRegistros.readInt();
-                    qtdRegistros++; //quantos registros já tem no arquivo 
-                    arquivoRegistros.seek(qtdRegistros*registroInserir.tamanhoRegistro); //ja deixa o ponteiro na posição certa para inserção
-                }
+         try{
+         //consultar quantros registros já tem no arquivo
+         while(true){
+         arquivoRegistros.readInt();
+         qtdRegistros++; //quantos registros já tem no arquivo 
+         arquivoRegistros.seek(qtdRegistros*registroInserir.tamanhoRegistro); //ja deixa o ponteiro na posição certa para inserção
+         }
                 
-        }catch (Exception e){
+         }catch (Exception e){
                  
-                  if(posicaoHash == -1){ //Caso 1 - posição está vazia, insere na posição o resgistro
+         if(posicaoHash == -1){ //Caso 1 - posição está vazia, insere na posição o resgistro
                      
-                     //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
-                     arquivoRegistros.writeInt(registroInserir.chave);
+         //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
+         arquivoRegistros.writeInt(registroInserir.chave);
+         System.out.println(registroInserir.chave);
 
-                     try{
-                         //escrever os atributos
-                         for (Tipo atributo : registroInserir.atributos){
+         try{
+         //escrever os atributos
+         for (Tipo atributo : registroInserir.atributos){
 
-                            if (tipos.get(i).equalsIgnoreCase("integer ")) { 
-                                Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
-                                arquivoRegistros.writeInt(inteiro.inteiro);
+         if (tipos.get(i).equalsIgnoreCase("integer ")) { 
+         Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
+         arquivoRegistros.writeInt(inteiro.inteiro);
+         System.out.println(inteiro.inteiro);
 
-                            }
-                            if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                              PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
-                              arquivoRegistros.writeFloat(ponto.pontoFlutuante);
-                            }
-                            if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                              PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
-                              arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
-                            }
-                            if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                               Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                               arquivoRegistros.writeUTF(palavra.palavra);
-                            }
-                            if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                                Decisao decisao = (Decisao) registroInserir.atributos.get(i);
-                                arquivoRegistros.writeBoolean(decisao.decisao);
-                            }
-                            if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                                Data data = (Data) registroInserir.atributos.get(i);
-                                arquivoRegistros.writeUTF(data.data.toString());
-                            }
-                            if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                                Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                                arquivoRegistros.writeUTF(palavra.palavra);
-                            }
-                            i++;
-                         }
-                     }catch (Exception g ){
-                        //escrever a flag 
-                         arquivoRegistros.writeBoolean(registroInserir.flag);
+         }
+         if (tipos.get(i).equalsIgnoreCase("float   ")) {
+         PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
+         arquivoRegistros.writeFloat(ponto.pontoFlutuante);
+         }
+         if (tipos.get(i).equalsIgnoreCase("double  ")) {
+         PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
+         arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
+         }
+         if (tipos.get(i).equalsIgnoreCase("char    ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         }
+         if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+         Decisao decisao = (Decisao) registroInserir.atributos.get(i);
+         arquivoRegistros.writeBoolean(decisao.decisao);
+         }
+         if (tipos.get(i).equalsIgnoreCase("date    ")) {
+         Data data = (Data) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(data.data.toString());
+         }
+         if (tipos.get(i).equalsIgnoreCase("string  ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         System.out.println(palavra.palavra);
+         }
+         i++;
+         }
+         }catch (Exception g ){
+         //escrever a flag 
+         arquivoRegistros.writeBoolean(registroInserir.flag);
+         System.out.println(registroInserir.flag);
 
-                         //escrever proximo
-                         arquivoRegistros.writeLong(registroInserir.prox);
+         //escrever proximo
+         arquivoRegistros.writeLong(registroInserir.prox);
+         System.out.println(registroInserir.prox);
 
+         tabelaHash.seek(hashCode * 4);
+         tabelaHash.writeInt(qtdRegistros); //escrevendo na tabela e ocupando a posição 
+                         
+                         
+         //teste
+         tabelaHash.seek(hashCode * 4);
+         System.out.println(tabelaHash.readInt());
+                         
+                         
+         //teste
+         Registro teste = new Registro();
+         arquivoRegistros.seek(qtdRegistros*registroInserir.tamanhoRegistro);
+         teste.chave = arquivoRegistros.readInt();
+         Palavra p = new Palavra(arquivoRegistros.readUTF());
+         teste.atributos.add(p);
+         teste.flag = arquivoRegistros.readBoolean();
+         teste.prox = arquivoRegistros.readInt();
+                         
+         System.out.println("Impressão do teste");
+         System.out.println(teste.chave);
+         System.out.println(teste.atributos.get(0));
+         System.out.println(teste.flag);
+         System.out.println(teste.prox);
+                         
+                         
+         }
 
-                         tabelaHash.seek(hashCode * 4);
-                         tabelaHash.writeInt(qtdRegistros); //escrevendo na tabela e ocupando a posição 
-                     }
-
-                  }else{ //Caso 2 - A posição na tabela hash está ocupada
+         }else{ //Caso 2 - A posição na tabela hash está ocupada
                       
-                        int x = posicaoHash*registroInserir.tamanhoRegistro; //
+         int x = posicaoHash*registroInserir.tamanhoRegistro; //teste
                       
-                        arquivoRegistros.seek(posicaoHash*registroInserir.tamanhoRegistro); //vou para a posição que já esta ocupada no arquivo
+         arquivoRegistros.seek(posicaoHash*registroInserir.tamanhoRegistro); //vou para a posição que já esta ocupada no arquivo
                         
-                        atualAnterior = posicaoHash*registroInserir.tamanhoRegistro;
+         atualAnterior = posicaoHash*registroInserir.tamanhoRegistro;
                         
-                        //lendo o registros atual que está ocupando a posição
-                        Registro atual = new Registro();          
-                        atual.chave = arquivoRegistros.readInt();
-                        i=1; 
+         //lendo o registros atual que está ocupando a posição
+         Registro atual = new Registro();          
+         atual.chave = arquivoRegistros.readInt();
+         i=1; 
                         
-                        try{
-                        //percorrer array de tipos e ler
-                        for (Tipo atributo : registroInserir.atributos){ 
-                                if (tipos.get(i).equalsIgnoreCase("integer ")) { 
-                                    Inteiro inteiro = new Inteiro (arquivoRegistros.readInt());
-                                    atual.atributos.add(inteiro);
-                                }
-                                if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                                  PontoFlutuante ponto = new PontoFlutuante (arquivoRegistros.readFloat());
-                                     atual.atributos.add(ponto);
-                                }
-                                if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                                  PontoFlutuanteDuplo ponto = new PontoFlutuanteDuplo (arquivoRegistros.readDouble());
-                                  atual.atributos.add(ponto);
-                                }
-                                if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                                   Palavra palavra = new Palavra (arquivoRegistros.readUTF());
-                                   atual.atributos.add(palavra);
-                                }
-                                if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                                    Decisao decisao = new Decisao (arquivoRegistros.readBoolean());
-                                    atual.atributos.add(decisao);
-                                }
-                                if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                                    String dataAux = arquivoRegistros.readUTF(); //leio a data em string do arquivo
-                                    Date data = new Date (dataAux); //crio um objeto dat com a data que estava no arquivo
-                                    Data dataFinal = new Data (data); // crio um objeto Data( Tipo ) com os dados pra pode adicionar nos atributos 
-                                    atual.atributos.add(dataFinal); //adiciona em atributos                 
-                                }
-                                if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                                    Palavra palavra = new Palavra (arquivoRegistros.readUTF());
-                                    atual.atributos.add(palavra);
-                                }
-                                i++;
-                            }
-                        }catch(Exception t) {
-                            atual.flag = arquivoRegistros.readBoolean();
-                            atual.prox = arquivoRegistros.readInt();
-                        }
+         try{
+         //percorrer array de tipos e ler
+         for (Tipo atributo : registroInserir.atributos){ 
+         if (tipos.get(i).equalsIgnoreCase("integer ")) { 
+         Inteiro inteiro = new Inteiro (arquivoRegistros.readInt());
+         atual.atributos.add(inteiro);
+         }
+         if (tipos.get(i).equalsIgnoreCase("float   ")) {
+         PontoFlutuante ponto = new PontoFlutuante (arquivoRegistros.readFloat());
+         atual.atributos.add(ponto);
+         }
+         if (tipos.get(i).equalsIgnoreCase("double  ")) {
+         PontoFlutuanteDuplo ponto = new PontoFlutuanteDuplo (arquivoRegistros.readDouble());
+         atual.atributos.add(ponto);
+         }
+         if (tipos.get(i).equalsIgnoreCase("char    ")) {
+         Palavra palavra = new Palavra (arquivoRegistros.readUTF());
+         atual.atributos.add(palavra);
+         }
+         if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+         Decisao decisao = new Decisao (arquivoRegistros.readBoolean());
+         atual.atributos.add(decisao);
+         }
+         if (tipos.get(i).equalsIgnoreCase("date    ")) {
+         String dataAux = arquivoRegistros.readUTF(); //leio a data em string do arquivo
+         Date data = new Date (dataAux); //crio um objeto dat com a data que estava no arquivo
+         Data dataFinal = new Data (data); // crio um objeto Data( Tipo ) com os dados pra pode adicionar nos atributos 
+         atual.atributos.add(dataFinal); //adiciona em atributos                 
+         }
+         if (tipos.get(i).equalsIgnoreCase("string  ")) {
+         Palavra palavra = new Palavra (arquivoRegistros.readUTF());
+         atual.atributos.add(palavra);
+         }
+         i++;
+         }
+         }catch(Exception t) {
+         atual.flag = arquivoRegistros.readBoolean();
+         atual.prox = arquivoRegistros.readInt();
+         }
 
-                        if(atual.flag){ //estado da flag
+         if(atual.flag){ //estado da flag
 
-                            //se a flag tiver livre - essa situação se aplica se é o mesmo registro que a hash já aponta 
+         //se a flag tiver livre - essa situação se aplica se é o mesmo registro que a hash já aponta 
 
-                             if (atual.chave == registroInserir.chave){ // se o registros que estava anteriormente é igual ao novo
-                                 //muda só a flag
-                                 atual.flag = false;
+         if (atual.chave == registroInserir.chave){ // se o registros que estava anteriormente é igual ao novo
+         //muda só a flag
+         atual.flag = false;
 
-                                 arquivoRegistros.seek(posicaoHash*(registroInserir.tamanhoRegistro-5)); // posiciona para começo do boolean
+         arquivoRegistros.seek(posicaoHash*(registroInserir.tamanhoRegistro-5)); // posiciona para começo do boolean
 
-                                 arquivoRegistros.writeBoolean(atual.flag);
+         arquivoRegistros.writeBoolean(atual.flag);
 
-                             }
+         }
 
-                             if(atual.chave != registroInserir.chave){ // se o registros que estava anteriormente é diferente do novo
+         if(atual.chave != registroInserir.chave){ // se o registros que estava anteriormente é diferente do novo
 
-                                 arquivoRegistros.seek(posicaoHash*(registroInserir.tamanhoRegistro)); // posiciona para começo da linha 
+         arquivoRegistros.seek(posicaoHash*(registroInserir.tamanhoRegistro)); // posiciona para começo da linha 
 
-                                 //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
-                                 arquivoRegistros.writeInt(registroInserir.chave);
+         //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
+         arquivoRegistros.writeInt(registroInserir.chave);
 
 
-                                 //escrever os atributos
-                                 i=1; // pq 1 ? pq eu quero olhar o primeiro atributo com segndo tipo ( o primeiro tipo é o inteiro da chave ) 
-                                 for (Tipo atributo : registroInserir.atributos){
+         //escrever os atributos
+         i=1; // pq 1 ? pq eu quero olhar o primeiro atributo com segndo tipo ( o primeiro tipo é o inteiro da chave ) 
+         for (Tipo atributo : registroInserir.atributos){
 
-                                    if (tipos.get(i).equalsIgnoreCase("integer ")) { 
-                                        Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
-                                        arquivoRegistros.writeInt(inteiro.inteiro);
+         if (tipos.get(i).equalsIgnoreCase("integer ")) { 
+         Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
+         arquivoRegistros.writeInt(inteiro.inteiro);
 
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                                      PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
-                                      arquivoRegistros.writeFloat(ponto.pontoFlutuante);
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                                      PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
-                                      arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                                       Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                                       arquivoRegistros.writeUTF(palavra.palavra);
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                                        Decisao decisao = (Decisao) registroInserir.atributos.get(i);
-                                        arquivoRegistros.writeBoolean(decisao.decisao);
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                                        Data data = (Data) registroInserir.atributos.get(i);
-                                        arquivoRegistros.writeUTF(data.data.toString());
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                                        Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                                        arquivoRegistros.writeUTF(palavra.palavra);
-                                    }
-                                    i++;
-                                 }
-                                 //escrever a flag 
-                                 arquivoRegistros.writeBoolean(registroInserir.flag);
+         }
+         if (tipos.get(i).equalsIgnoreCase("float   ")) {
+         PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
+         arquivoRegistros.writeFloat(ponto.pontoFlutuante);
+         }
+         if (tipos.get(i).equalsIgnoreCase("double  ")) {
+         PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
+         arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
+         }
+         if (tipos.get(i).equalsIgnoreCase("char    ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         }
+         if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+         Decisao decisao = (Decisao) registroInserir.atributos.get(i);
+         arquivoRegistros.writeBoolean(decisao.decisao);
+         }
+         if (tipos.get(i).equalsIgnoreCase("date    ")) {
+         Data data = (Data) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(data.data.toString());
+         }
+         if (tipos.get(i).equalsIgnoreCase("string  ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         }
+         i++;
+         }
+         //escrever a flag 
+         arquivoRegistros.writeBoolean(registroInserir.flag);
 
-                                 //escrever proximo
-                                 //arquivoRegistros.writeLong(registroInserir.prox);
-                             }
+         //escrever proximo
+         //arquivoRegistros.writeLong(registroInserir.prox);
+         }
 
-                      }else{ // a flag já está ocupada -
+         }else{ // a flag já está ocupada -
 
-                                 if(atual.prox == -1){
-                                    //atualizo registro atual e faço encadeamento
-                                    atual.prox = qtdRegistros;
+         if(atual.prox == -1){
+         //atualizo registro atual e faço encadeamento
+         atual.prox = qtdRegistros;
 
-                                    arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro-4)); // posiciona para começo do proximo do atual
+         arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro-4)); // posiciona para começo do proximo do atual
                                     
                                     
-                                    arquivoRegistros.writeInt(atual.prox); //atualiza proximo do atual
+         arquivoRegistros.writeInt(atual.prox); //atualiza proximo do atual
 
-                                    //insiro o novo registro na linha livre
+         //insiro o novo registro na linha livre
 
-                                    arquivoRegistros.seek(qtdRegistros*registroInserir.tamanhoRegistro);
+         arquivoRegistros.seek(qtdRegistros*registroInserir.tamanhoRegistro);
 
-                                    //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
-                                     arquivoRegistros.writeInt(registroInserir.chave);
+         //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
+         arquivoRegistros.writeInt(registroInserir.chave);
 
-                                     //escrever os atributos
-                                     i=1; // pq 1 ? pq eu quero olhar o primeiro atributo com segndo tipo ( o primeiro tipo é o inteiro da chave ) 
-                                     for (Tipo atributo : registroInserir.atributos){
+         //escrever os atributos
+         i=1; // pq 1 ? pq eu quero olhar o primeiro atributo com segndo tipo ( o primeiro tipo é o inteiro da chave ) 
+         for (Tipo atributo : registroInserir.atributos){
 
-                                        if (tipos.get(i).equalsIgnoreCase("integer ")) { 
-                                            Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
-                                            arquivoRegistros.writeInt(inteiro.inteiro);
+         if (tipos.get(i).equalsIgnoreCase("integer ")) { 
+         Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
+         arquivoRegistros.writeInt(inteiro.inteiro);
 
-                                        }
-                                        if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                                          PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
-                                          arquivoRegistros.writeFloat(ponto.pontoFlutuante);
-                                        }
-                                        if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                                          PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
-                                          arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
-                                        }
-                                        if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                                           Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                                           arquivoRegistros.writeUTF(palavra.palavra);
-                                        }
-                                        if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                                            Decisao decisao = (Decisao) registroInserir.atributos.get(i);
-                                            arquivoRegistros.writeBoolean(decisao.decisao);
-                                        }
-                                        if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                                            Data data = (Data) registroInserir.atributos.get(i);
-                                            arquivoRegistros.writeUTF(data.data.toString());
-                                        }
-                                        if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                                            Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                                            arquivoRegistros.writeUTF(palavra.palavra);
-                                        }
-                                        i++;
-                                     }
-                                     //escrever a flag 
-                                     arquivoRegistros.writeBoolean(registroInserir.flag);
+         }
+         if (tipos.get(i).equalsIgnoreCase("float   ")) {
+         PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
+         arquivoRegistros.writeFloat(ponto.pontoFlutuante);
+         }
+         if (tipos.get(i).equalsIgnoreCase("double  ")) {
+         PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
+         arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
+         }
+         if (tipos.get(i).equalsIgnoreCase("char    ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         }
+         if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+         Decisao decisao = (Decisao) registroInserir.atributos.get(i);
+         arquivoRegistros.writeBoolean(decisao.decisao);
+         }
+         if (tipos.get(i).equalsIgnoreCase("date    ")) {
+         Data data = (Data) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(data.data.toString());
+         }
+         if (tipos.get(i).equalsIgnoreCase("string  ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         }
+         i++;
+         }
+         //escrever a flag 
+         arquivoRegistros.writeBoolean(registroInserir.flag);
 
-                                     //escrever proximo
-                                     arquivoRegistros.writeLong(registroInserir.prox);
+         //escrever proximo
+         arquivoRegistros.writeLong(registroInserir.prox);
 
-                                 }else{ // vou começar a percorrer o encadeamento 
-                                     while(atual.prox != -1 || termina != 1){
+         }else{ // vou começar a percorrer o encadeamento 
+         while(atual.prox != -1 || termina != 1){
 
-                                        arquivoRegistros.seek(atual.prox*registroInserir.tamanhoRegistro); //vou para a posição que já esta ocupada no arquivo
+         arquivoRegistros.seek(atual.prox*registroInserir.tamanhoRegistro); //vou para a posição que já esta ocupada no arquivo
 
-                                        //lendo o registros atual que está ocupando a posição         
-                                        atual.chave = arquivoRegistros.readInt();
-                                        i=1; 
+         //lendo o registros atual que está ocupando a posição         
+         atual.chave = arquivoRegistros.readInt();
+         i=1; 
 
-                                        //percorrer array de tipos e ler
-                                        for (Tipo atributo : registroInserir.atributos){ 
-                                                if (tipos.get(i).equalsIgnoreCase("integer ")) { 
-                                                    Inteiro inteiro = new Inteiro (arquivoRegistros.readInt());
-                                                    atual.atributos.add(inteiro);
-                                                }
-                                                if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                                                  PontoFlutuante ponto = new PontoFlutuante (arquivoRegistros.readFloat());
-                                                     atual.atributos.add(ponto);
-                                                }
-                                                if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                                                  PontoFlutuanteDuplo ponto = new PontoFlutuanteDuplo (arquivoRegistros.readDouble());
-                                                  atual.atributos.add(ponto);
-                                                }
-                                                if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                                                   Palavra palavra = new Palavra (arquivoRegistros.readUTF());
-                                                   atual.atributos.add(palavra);
-                                                }
-                                                if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                                                    Decisao decisao = new Decisao (arquivoRegistros.readBoolean());
-                                                    atual.atributos.add(decisao);
-                                                }
-                                                if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                                                    String dataAux = arquivoRegistros.readUTF(); //leio a data em string do arquivo
-                                                    Date data = new Date (dataAux); //crio um objeto dat com a data que estava no arquivo
-                                                    Data dataFinal = new Data (data); // crio um objeto Data( Tipo ) com os dados pra pode adicionar nos atributos 
-                                                    atual.atributos.add(dataFinal); //adiciona em atributos                 
-                                                }
-                                                if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                                                    Palavra palavra = new Palavra (arquivoRegistros.readUTF());
-                                                    atual.atributos.add(palavra);
-                                                }
-                                                i++;
-                                            }
+         //percorrer array de tipos e ler
+         for (Tipo atributo : registroInserir.atributos){ 
+         if (tipos.get(i).equalsIgnoreCase("integer ")) { 
+         Inteiro inteiro = new Inteiro (arquivoRegistros.readInt());
+         atual.atributos.add(inteiro);
+         }
+         if (tipos.get(i).equalsIgnoreCase("float   ")) {
+         PontoFlutuante ponto = new PontoFlutuante (arquivoRegistros.readFloat());
+         atual.atributos.add(ponto);
+         }
+         if (tipos.get(i).equalsIgnoreCase("double  ")) {
+         PontoFlutuanteDuplo ponto = new PontoFlutuanteDuplo (arquivoRegistros.readDouble());
+         atual.atributos.add(ponto);
+         }
+         if (tipos.get(i).equalsIgnoreCase("char    ")) {
+         Palavra palavra = new Palavra (arquivoRegistros.readUTF());
+         atual.atributos.add(palavra);
+         }
+         if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+         Decisao decisao = new Decisao (arquivoRegistros.readBoolean());
+         atual.atributos.add(decisao);
+         }
+         if (tipos.get(i).equalsIgnoreCase("date    ")) {
+         String dataAux = arquivoRegistros.readUTF(); //leio a data em string do arquivo
+         Date data = new Date (dataAux); //crio um objeto dat com a data que estava no arquivo
+         Data dataFinal = new Data (data); // crio um objeto Data( Tipo ) com os dados pra pode adicionar nos atributos 
+         atual.atributos.add(dataFinal); //adiciona em atributos                 
+         }
+         if (tipos.get(i).equalsIgnoreCase("string  ")) {
+         Palavra palavra = new Palavra (arquivoRegistros.readUTF());
+         atual.atributos.add(palavra);
+         }
+         i++;
+         }
 
-                                            atual.flag = arquivoRegistros.readBoolean();
+         atual.flag = arquivoRegistros.readBoolean();
 
-                                            atualAnterior = atual.prox; //salvar o ponteiro para o começo da linha atual;
-                                            atual.prox = arquivoRegistros.readInt();
+         atualAnterior = atual.prox; //salvar o ponteiro para o começo da linha atual;
+         atual.prox = arquivoRegistros.readInt();
 
-                                            if(atual.flag){ //estado da flag - escrevendo no meio 
+         if(atual.flag){ //estado da flag - escrevendo no meio 
 
-                                                //se a flag tiver livre 
+         //se a flag tiver livre 
 
-                                                 if (atual.chave == registroInserir.chave){ //se o registro é o mesmo do anterior que já estava ali
-                                                     //muda só a flag
-                                                     atual.flag = false;
+         if (atual.chave == registroInserir.chave){ //se o registro é o mesmo do anterior que já estava ali
+         //muda só a flag
+         atual.flag = false;
 
-                                                     arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro-6)); // posiciona para começo do boolean
+         arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro-6)); // posiciona para começo do boolean
 
-                                                     arquivoRegistros.writeBoolean(atual.flag);
+         arquivoRegistros.writeBoolean(atual.flag);
 
-                                                     termina = 1; //sai do loop
-                                                 }
+         termina = 1; //sai do loop
+         }
 
-                                                 if(atual.chave != registroInserir.chave){ // se o registros que estava anteriormente é diferente do novo
+         if(atual.chave != registroInserir.chave){ // se o registros que estava anteriormente é diferente do novo
 
-                                                         arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro)); // posiciona para começo da linha 
+         arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro)); // posiciona para começo da linha 
 
-                                                         //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
-                                                         System.out.println (registroInserir.chave);
-                                                         arquivoRegistros.writeInt(registroInserir.chave);
+         //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
+         System.out.println (registroInserir.chave);
+         arquivoRegistros.writeInt(registroInserir.chave);
 
 
-                                                         //escrever os atributos
-                                                         for (Tipo atributo : registroInserir.atributos){
+         //escrever os atributos
+         for (Tipo atributo : registroInserir.atributos){
 
-                                                            if (tipos.get(i).equalsIgnoreCase("integer ")) { 
-                                                                Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
-                                                                arquivoRegistros.writeInt(inteiro.inteiro);
+         if (tipos.get(i).equalsIgnoreCase("integer ")) { 
+         Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
+         arquivoRegistros.writeInt(inteiro.inteiro);
 
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                                                              PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
-                                                              arquivoRegistros.writeFloat(ponto.pontoFlutuante);
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                                                              PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
-                                                              arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                                                               Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                                                               arquivoRegistros.writeUTF(palavra.palavra);
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                                                                Decisao decisao = (Decisao) registroInserir.atributos.get(i);
-                                                                arquivoRegistros.writeBoolean(decisao.decisao);
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                                                                Data data = (Data) registroInserir.atributos.get(i);
-                                                                arquivoRegistros.writeUTF(data.data.toString());
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                                                                Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                                                                arquivoRegistros.writeUTF(palavra.palavra);
-                                                            }
-                                                            i++;
-                                                         }
-                                                         //escrever a flag 
-                                                         arquivoRegistros.writeBoolean(registroInserir.flag);
+         }
+         if (tipos.get(i).equalsIgnoreCase("float   ")) {
+         PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
+         arquivoRegistros.writeFloat(ponto.pontoFlutuante);
+         }
+         if (tipos.get(i).equalsIgnoreCase("double  ")) {
+         PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
+         arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
+         }
+         if (tipos.get(i).equalsIgnoreCase("char    ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         }
+         if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+         Decisao decisao = (Decisao) registroInserir.atributos.get(i);
+         arquivoRegistros.writeBoolean(decisao.decisao);
+         }
+         if (tipos.get(i).equalsIgnoreCase("date    ")) {
+         Data data = (Data) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(data.data.toString());
+         }
+         if (tipos.get(i).equalsIgnoreCase("string  ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         }
+         i++;
+         }
+         //escrever a flag 
+         arquivoRegistros.writeBoolean(registroInserir.flag);
 
-                                                         //escrever proximo
-                                                         //arquivoRegistros.writeLong(registroInserir.prox);
+         //escrever proximo
+         //arquivoRegistros.writeLong(registroInserir.prox);
 
-                                                         termina = 1; //saio do loop
-                                                     }
+         termina = 1; //saio do loop
+         }
 
-                                             }else{
+         }else{
 
-                                                 if(atual.prox == -1){
-                                                        //atualizo registro atual e faço encadeamento
-                                                        atual.prox = qtdRegistros;
+         if(atual.prox == -1){
+         //atualizo registro atual e faço encadeamento
+         atual.prox = qtdRegistros;
 
-                                                        arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro-4)); // posiciona para começo do boolean
+         arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro-4)); // posiciona para começo do boolean
 
-                                                        arquivoRegistros.writeInt(atual.prox);
+         arquivoRegistros.writeInt(atual.prox);
 
-                                                        //insiro o novo registro na linha livre
+         //insiro o novo registro na linha livre
 
-                                                        arquivoRegistros.seek(qtdRegistros*registroInserir.tamanhoRegistro);
+         arquivoRegistros.seek(qtdRegistros*registroInserir.tamanhoRegistro);
 
-                                                        //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
-                                                         arquivoRegistros.writeInt(registroInserir.chave);
+         //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
+         arquivoRegistros.writeInt(registroInserir.chave);
 
-                                                         //escrever os atributos
-                                                         for (Tipo atributo : registroInserir.atributos){
+         //escrever os atributos
+         for (Tipo atributo : registroInserir.atributos){
 
-                                                            if (tipos.get(i).equalsIgnoreCase("integer ")) { 
-                                                                Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
-                                                                arquivoRegistros.writeInt(inteiro.inteiro);
+         if (tipos.get(i).equalsIgnoreCase("integer ")) { 
+         Inteiro inteiro = (Inteiro) registroInserir.atributos.get(i);
+         arquivoRegistros.writeInt(inteiro.inteiro);
 
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                                                              PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
-                                                              arquivoRegistros.writeFloat(ponto.pontoFlutuante);
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                                                              PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
-                                                              arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                                                               Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                                                               arquivoRegistros.writeUTF(palavra.palavra);
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                                                                Decisao decisao = (Decisao) registroInserir.atributos.get(i);
-                                                                arquivoRegistros.writeBoolean(decisao.decisao);
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                                                                Data data = (Data) registroInserir.atributos.get(i);
-                                                                arquivoRegistros.writeUTF(data.data.toString());
-                                                            }
-                                                            if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                                                                Palavra palavra = (Palavra) registroInserir.atributos.get(i);
-                                                                arquivoRegistros.writeUTF(palavra.palavra);
-                                                            }
-                                                            i++;
-                                                         }
-                                                         //escrever a flag 
-                                                         arquivoRegistros.writeBoolean(registroInserir.flag);
+         }
+         if (tipos.get(i).equalsIgnoreCase("float   ")) {
+         PontoFlutuante ponto = (PontoFlutuante) registroInserir.atributos.get(i);
+         arquivoRegistros.writeFloat(ponto.pontoFlutuante);
+         }
+         if (tipos.get(i).equalsIgnoreCase("double  ")) {
+         PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) registroInserir.atributos.get(i);
+         arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
+         }
+         if (tipos.get(i).equalsIgnoreCase("char    ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         }
+         if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+         Decisao decisao = (Decisao) registroInserir.atributos.get(i);
+         arquivoRegistros.writeBoolean(decisao.decisao);
+         }
+         if (tipos.get(i).equalsIgnoreCase("date    ")) {
+         Data data = (Data) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(data.data.toString());
+         }
+         if (tipos.get(i).equalsIgnoreCase("string  ")) {
+         Palavra palavra = (Palavra) registroInserir.atributos.get(i);
+         arquivoRegistros.writeUTF(palavra.palavra);
+         }
+         i++;
+         }
+         //escrever a flag 
+         arquivoRegistros.writeBoolean(registroInserir.flag);
 
-                                                         //escrever proximo
-                                                         arquivoRegistros.writeLong(registroInserir.prox);
+         //escrever proximo
+         arquivoRegistros.writeLong(registroInserir.prox);
 
-                                                         termina =1;
-                                             }
-                                    }
+         termina =1;
+         }
+         }
 
-                                 }
+         }
 
-                             }
+         }
 
-                        }
+         }
 
-                     }   
+         }   
  
-            }//fim do catch
-           finally{
-            arquivoRegistros.close();
-            tabelaHash.close();
-            return registroInserir.prox;
+         }//fim do catch
+         finally{
+         arquivoRegistros.close();
+         tabelaHash.close();
+         return registroInserir.prox;
+         }*/
+
+        int qtdRegistros = 0;
+        RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(nomeArquivoDados), "rw"); //abrindo o arquivo de registros
+        int tamRegistro = tamanhoReg(nomeTabela);
+
+        try {//consultar quantros registros já tem no arquivo
+            while (true) {
+                arquivoRegistros.readInt();
+                qtdRegistros++; //quantos registros já tem no arquivo 
+                arquivoRegistros.seek(qtdRegistros * tamRegistro); //ja deixa o ponteiro na posição certa para inserção
+            }
+        } catch (Exception e) {
+            RandomAccessFile tabelaHash = new RandomAccessFile(new File(nomeArquivoHash), "rw");
+            //RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(nomeArquivoDados), "rw");
+            DataInputStream atributos = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela + "_atributos.dat")));
+            Registro registro = null;
+            int tam = Registro.tamanhoReg(nomeTabela);
+
+            int hashcode = chave % 7;
+
+            tabelaHash.seek(hashcode * CompartimentoHash.tamanhoRegistro);
+            CompartimentoHash end = CompartimentoHash.le(tabelaHash);
+            Registro proxRegistro = null;
+            int proxEndereco = -2;
+            int ultimoEnd = -2;
+
+            try {
+                while (end.prox != -1) {
+                    arquivoRegistros.seek(end.prox * tam);
+                    registro = Registro.le(arquivoRegistros, nomeTabela);
+                    if (chave == registro.chave && registro.flag == registro.OCUPADO) {
+                        return -1;
+                    }
+                    if (registro.flag == registro.LIBERADO) {
+                        proxRegistro = registro;
+                        proxEndereco = end.prox;
+                    }
+                    ultimoEnd = end.prox;
+                    end.prox = registro.prox;
+                }
+                if (proxRegistro != null) {
+                    proxRegistro.chave = chave;
+                    proxRegistro.atributos = atr;
+                    proxRegistro.flag = registro.OCUPADO;
+                    arquivoRegistros.seek(proxEndereco * tam);
+                    proxRegistro.salva(arquivoRegistros, nomeTabela);
+                    return proxEndereco;
+                }
+                end.prox = qtdRegistros;
+                arquivoRegistros.seek(end.prox * tam);
+
+                new Registro(chave, atr, -1, registro.OCUPADO).salva(arquivoRegistros, nomeTabela);
+                if (registro == null) {
+                    tabelaHash.seek(hashcode * CompartimentoHash.tamanhoRegistro);
+                    end.salva(tabelaHash);
+                    return end.prox;
+                } else {
+                    registro.prox = qtdRegistros;
+                    arquivoRegistros.seek(ultimoEnd * tam);
+                    registro.salva(arquivoRegistros, nomeTabela);
+                }
+                return registro.prox;
+            } finally {
+                tabelaHash.close();
+                arquivoRegistros.close();
+            }
         }
 
-        /*RandomAccessFile tabelaHash = new RandomAccessFile(new File(nomeArquivoHash), "rw");
-        RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(nomeArquivoDados), "rw");
-        DataInputStream atributos = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
-        Registro registro = null;
-        int tam = Registro.tamanhoReg(nomeTabela);
-
-        int hashcode = chave % 7;
-
-        tabelaHash.seek(hashcode * CompartimentoHash.tamanhoRegistro);
-        CompartimentoHash end = CompartimentoHash.le(tabelaHash);
-        Registro proxRegistro = null;
-        int proxEndereco = -2;
-        int ultimoEnd = -2;
-        try {
-            while (end.prox != -1) {
-                arquivoRegistros.seek(end.prox * tam);
-                registro = Registro.le(atributos, arquivoRegistros, nomeTabela);
-                if (chave == registro.chave && registro.flag == registro.OCUPADO) {
-                    return -1;
-                }
-                if (registro.flag == registro.LIBERADO) {
-                    proxRegistro = registro;
-                    proxEndereco = end.prox;
-                }
-                ultimoEnd = end.prox;
-                end.prox = registro.prox;
-            }
-            if (proxRegistro != null) {
-                proxRegistro.chave = chave;
-                proxRegistro.atributos = atr;
-                proxRegistro.flag = registro.OCUPADO;
-                arquivoRegistros.seek(proxEndereco * tam);
-                proxRegistro.salva(arquivoRegistros);
-                return proxEndereco;
-            }
-            end.prox = numRegistros;
-            arquivoRegistros.seek(end.prox * tam);
-
-            new Registro(chave, atr, -1, registro.OCUPADO).salva(arquivoRegistros);
-            if (registro == null) {
-                tabelaHash.seek(hashcode * CompartimentoHash.tamanhoRegistro);
-                end.salva(tabelaHash);
-                return end.prox;
-            } else {
-                registro.prox = numRegistros;
-                arquivoRegistros.seek(ultimoEnd * tam);
-                registro.salva(arquivoRegistros);
-            }
-            return registro.prox;
-        } finally {
-            tabelaHash.close();
-            arquivoRegistros.close();
-        }*/
-       
     }
 
     /**
@@ -658,20 +699,20 @@ public class EncadeamentoExterior {
 
                 arquivo.seek(compartimento.prox * tam);
 
-                Registro registro = Registro.le(atributos, arquivo, nomeTabela);
+                Registro registro = Registro.le(arquivo, nomeTabela);
 
                 if (registro.chave == CodCli) {
                     registro.flag = registro.LIBERADO;
                     arquivo.seek(compartimento.prox * tam);
-                    registro.salva(arquivo);
+                    registro.salva(arquivo, nomeTabela);
 
                     return compartimento.prox;
                 } else {
                     arquivo.seek(index * tam);
-                    registro = Registro.le(atributos, arquivo, nomeTabela);
+                    registro = Registro.le(arquivo, nomeTabela);
                     registro.flag = registro.LIBERADO;
                     arquivo.seek(index * tam);
-                    registro.salva(arquivo);
+                    registro.salva(arquivo, nomeTabela);
                     return index;
                 }
             }
@@ -699,44 +740,60 @@ public class EncadeamentoExterior {
 //        }
 //        
 //    }
-    public int numeroRegistros(String nomeArquivoHash, boolean aumenta, boolean diminui) throws IOException {
+    public int numeroRegistros(String nomeTabela) throws IOException {
 
-        RandomAccessFile arquivo = null;
+        int qtdRegistros = 0;
+        RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(nomeTabela + "_registros.dat"), "rw"); //abrindo o arquivo de registros
+        int tamRegistro = tamanhoReg(nomeTabela);
 
-        try {
-            //Se arquivo não existe cria
-            File f = new File(nomeArquivoHash);
-            if (!f.exists()) {
-                arquivo = new RandomAccessFile(f, "rw");
-                arquivo.seek(0);
-                arquivo.writeInt(0);
-                return 0;
+        try {//consultar quantros registros já tem no arquivo
+            while (true) {
+                arquivoRegistros.readInt();
+                qtdRegistros++; //quantos registros já tem no arquivo 
+                arquivoRegistros.seek(qtdRegistros * tamRegistro); //ja deixa o ponteiro na posição certa para inserção
             }
-            if (f.exists()) {
-                arquivo = new RandomAccessFile(f, "rw");
-                int i = arquivo.readInt();
-                if (aumenta == true) {
-                    arquivo.seek(0);
-                    arquivo.writeInt(i + 1);
-                    arquivo.seek(0);
-                    return i + 1;
-                }
-                if (diminui == true) {
-                    arquivo.seek(0);
-                    arquivo.writeInt(i - 1);
-                    arquivo.seek(0);
-                    return i - 1;
-                }
-                return i;
-            }
-
         } catch (Exception e) {
-        } finally {
-            if (arquivo != null) {
-                arquivo.close();
-            }
+            return qtdRegistros;
         }
 
-        return 0;
     }
 }
+
+/*RandomAccessFile arquivo = null;
+
+ try {
+ //Se arquivo não existe cria
+ File f = new File(nomeArquivoHash);
+ if (!f.exists()) {
+ arquivo = new RandomAccessFile(f, "rw");
+ arquivo.seek(0);
+ arquivo.writeInt(0);
+ return 0;
+ }
+ if (f.exists()) {
+ arquivo = new RandomAccessFile(f, "rw");
+ int i = arquivo.readInt();
+ if (aumenta == true) {
+ arquivo.seek(0);
+ arquivo.writeInt(i + 1);
+ arquivo.seek(0);
+ return i + 1;
+ }
+ if (diminui == true) {
+ arquivo.seek(0);
+ arquivo.writeInt(i - 1);
+ arquivo.seek(0);
+ return i - 1;
+ }
+ return i;
+ }
+
+ } catch (Exception e) {
+ } finally {
+ if (arquivo != null) {
+ arquivo.close();
+ }
+ }
+
+ return 0;
+ }*/

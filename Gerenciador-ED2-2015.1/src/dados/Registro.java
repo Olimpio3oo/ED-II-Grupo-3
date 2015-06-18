@@ -23,11 +23,9 @@ public class Registro {
     public ArrayList<Tipo> atributos = new ArrayList<>();
     public boolean flag;
     public int prox;
-    
+
     public int tamanhoRegistro; //em bytes 
-    
-    
-    
+
     public static boolean LIBERADO = true;
     public static boolean OCUPADO = false;
 
@@ -42,80 +40,207 @@ public class Registro {
         this.flag = flag;
     }
 
-    public static Registro le(DataInputStream atributos, RandomAccessFile registros, String nomeTabela) throws IOException {
-
-        DataInputStream in = null;
+    public static Registro le(RandomAccessFile arquivoRegistros, String nomeTabela) throws IOException {
 
         ArrayList<String> tipos = new ArrayList<>();
-        Registro registro = new Registro();
+
         try {
-            in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
+            DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
 
             while (true) {
-                in.readUTF();
+                in.readUTF(); //lendo nomes 
                 tipos.add(in.readUTF());
             }
 
         } catch (Exception e) {
 
-            registro.chave = atributos.readInt();
-            Inteiro inteiro = new Inteiro(registro.chave);
-            registro.atributos.add(0, inteiro);
+            //lendo o registros atual que está ocupando a posição
+            Registro atual = new Registro();
+            atual.chave = arquivoRegistros.readInt();
 
-            for (int i = 1; i < tipos.size(); i++) {
+            try {
+                //percorrer array de tipos e ler
+                for (int i = 1; i < tipos.size(); i++) {
+                    if (tipos.get(i).equalsIgnoreCase("integer ")) {
+                        Inteiro inteiro = new Inteiro(arquivoRegistros.readInt());
+                        atual.atributos.add(inteiro);
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("float   ")) {
+                        PontoFlutuante ponto = new PontoFlutuante(arquivoRegistros.readFloat());
+                        atual.atributos.add(ponto);
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("double  ")) {
+                        PontoFlutuanteDuplo ponto = new PontoFlutuanteDuplo(arquivoRegistros.readDouble());
+                        atual.atributos.add(ponto);
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("char    ")) {
+                        Palavra palavra = new Palavra(arquivoRegistros.readUTF());
+                        atual.atributos.add(palavra);
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+                        Decisao decisao = new Decisao(arquivoRegistros.readBoolean());
+                        atual.atributos.add(decisao);
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("date    ")) {
+                        String dataAux = arquivoRegistros.readUTF(); //leio a data em string do arquivo
+                        Date data = new Date(dataAux); //crio um objeto dat com a data que estava no arquivo
+                        Data dataFinal = new Data(data); // crio um objeto Data( Tipo ) com os dados pra pode adicionar nos atributos 
+                        atual.atributos.add(dataFinal); //adiciona em atributos                 
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("string  ")) {
+                        Palavra palavra = new Palavra(arquivoRegistros.readUTF());
+                        atual.atributos.add(palavra);
+                    }
+                    i++;
+                }
+            } catch (Exception t) {
+                atual.flag = arquivoRegistros.readBoolean();
+                atual.prox = arquivoRegistros.readInt();
 
-                if (tipos.get(i).equalsIgnoreCase("integer ")) {
-                    inteiro = new Inteiro(registros.readInt());
-                    registro.atributos.add(inteiro);
-                    registro.tamanhoRegistro += Integer.BYTES;
-                }
-                if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                    PontoFlutuante pf = new PontoFlutuante(registros.readFloat());
-                    registro.atributos.add(pf);
-                    registro.tamanhoRegistro += Float.BYTES;
-                }
-                if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                    PontoFlutuanteDuplo pfd = new PontoFlutuanteDuplo(registros.readDouble());
-                    registro.atributos.add(pfd);
-                    registro.tamanhoRegistro += Double.BYTES;
-                }
-                if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                    Palavra str = new Palavra(registros.readUTF());
-                    registro.atributos.add(str);
-                    registro.tamanhoRegistro += 2;
-                }
-                if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                    Decisao bool = new Decisao(registros.readBoolean());
-                    registro.atributos.add(bool);
-                    registro.tamanhoRegistro += 1;
-                }
-                if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                    Date d = new Date(registros.readUTF());
-                    Data data = new Data(d);
-                    registro.atributos.add(data);
-                    registro.tamanhoRegistro += 12;
-                }
-                if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                    Palavra str = new Palavra(registros.readUTF());
-                    registro.atributos.add(str);
-                    registro.tamanhoRegistro += 20;
-                }
+            } finally {
+                return atual;
             }
-            registro.prox = registros.readInt();
-            registro.flag = registros.readBoolean();
+
+            /*DataInputStream in = null;
+
+             ArrayList<String> tipos = new ArrayList<>();
+             Registro registro = new Registro();
+             try {
+             in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
+
+             while (true) {
+             in.readUTF();
+             tipos.add(in.readUTF());
+             }
+
+             } catch (Exception e) {
+
+             registro.chave = atributos.readInt();
+             Inteiro inteiro = new Inteiro(registro.chave);
+             registro.atributos.add(0, inteiro);
+
+             for (int i = 1; i < tipos.size(); i++) {
+
+             if (tipos.get(i).equalsIgnoreCase("integer ")) {
+             inteiro = new Inteiro(registros.readInt());
+             registro.atributos.add(inteiro);
+             registro.tamanhoRegistro += Integer.BYTES;
+             }
+             if (tipos.get(i).equalsIgnoreCase("float   ")) {
+             PontoFlutuante pf = new PontoFlutuante(registros.readFloat());
+             registro.atributos.add(pf);
+             registro.tamanhoRegistro += Float.BYTES;
+             }
+             if (tipos.get(i).equalsIgnoreCase("double  ")) {
+             PontoFlutuanteDuplo pfd = new PontoFlutuanteDuplo(registros.readDouble());
+             registro.atributos.add(pfd);
+             registro.tamanhoRegistro += Double.BYTES;
+             }
+             if (tipos.get(i).equalsIgnoreCase("char    ")) {
+             Palavra str = new Palavra(registros.readUTF());
+             registro.atributos.add(str);
+             registro.tamanhoRegistro += 2;
+             }
+             if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+             Decisao bool = new Decisao(registros.readBoolean());
+             registro.atributos.add(bool);
+             registro.tamanhoRegistro += 1;
+             }
+             if (tipos.get(i).equalsIgnoreCase("date    ")) {
+             Date d = new Date(registros.readUTF());
+             Data data = new Data(d);
+             registro.atributos.add(data);
+             registro.tamanhoRegistro += 12;
+             }
+             if (tipos.get(i).equalsIgnoreCase("string  ")) {
+             Palavra str = new Palavra(registros.readUTF());
+             registro.atributos.add(str);
+             registro.tamanhoRegistro += 20;
+             }
+             }
+             registro.prox = registros.readInt();
+             registro.flag = registros.readBoolean();
             
-        } finally {
-            in.close();
+             } finally {
+             in.close();
+             }
+             return null;
+             }
+
+             public void salva(RandomAccessFile out) throws IOException {
+             for (int i = 0; i < atributos.size(); i++) {
+             out.writeUTF(atributos.get(i).toString());
+             }
+             out.writeInt(prox);
+             out.writeBoolean(flag);*/
         }
-        return null;
     }
 
-    public void salva(RandomAccessFile out) throws IOException {
-        for (int i = 0; i < atributos.size(); i++) {
-            out.writeUTF(atributos.get(i).toString());
+public void salva(RandomAccessFile arquivoRegistros, String nomeTabela) throws IOException {
+
+        ArrayList<String> tipos = new ArrayList<>();
+
+        try {
+            DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela + "_atributos.dat")));
+
+            while (true) {
+                in.readUTF(); //lendo nomes 
+                tipos.add(in.readUTF());
+            }
+
+        } catch (Exception e) {
+
+            //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
+            arquivoRegistros.writeInt(this.chave);
+            //System.out.println(this.chave);
+
+            try {
+                //escrever os atributos
+                for (int i = 1; i < tipos.size(); i++) {
+
+                    if (tipos.get(i).equalsIgnoreCase("integer ")) {
+                        Inteiro inteiro = (Inteiro) this.atributos.get(i);
+                        arquivoRegistros.writeInt(inteiro.inteiro);
+                        System.out.println(inteiro.inteiro);
+
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("float   ")) {
+                        PontoFlutuante ponto = (PontoFlutuante) this.atributos.get(i);
+                        arquivoRegistros.writeFloat(ponto.pontoFlutuante);
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("double  ")) {
+                        PontoFlutuanteDuplo ponto = (PontoFlutuanteDuplo) this.atributos.get(i);
+                        arquivoRegistros.writeDouble(ponto.pontoFlutuanteDuplo);
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("char    ")) {
+                        Palavra palavra = (Palavra) this.atributos.get(i);
+                        arquivoRegistros.writeUTF(palavra.palavra);
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+                        Decisao decisao = (Decisao) this.atributos.get(i);
+                        arquivoRegistros.writeBoolean(decisao.decisao);
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("date    ")) {
+                        Data data = (Data) this.atributos.get(i);
+                        arquivoRegistros.writeUTF(data.data.toString());
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("string  ")) {
+                        Palavra palavra = (Palavra) this.atributos.get(i);
+                        arquivoRegistros.writeUTF(palavra.palavra);
+                        System.out.println(palavra.palavra);
+                    }
+                    i++;
+                }
+            } catch (Exception g) {
+                //escrever a flag 
+                arquivoRegistros.writeBoolean(this.flag);
+            //System.out.println(this.flag);
+
+                //escrever proximo
+                arquivoRegistros.writeLong(this.prox);
+                //System.out.println(registroInserir.prox);
+            }
         }
-        out.writeInt(prox);
-        out.writeBoolean(flag);
     }
 
     /**
@@ -124,17 +249,17 @@ public class Registro {
      * @return
      * @throws IOException
      */
-    public static int tamanhoReg(String nomeTabela) throws IOException{
+    public static int tamanhoReg(String nomeTabela) throws IOException {
 
         DataInputStream in = null;
-        ArrayList<String> nomes = new ArrayList<>();
+        //ArrayList<String> nomes = new ArrayList<>();
         ArrayList<String> tipos = new ArrayList<>();
         int retorno = 0;
         try {
             in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
 
             while (true) {
-                nomes.add(in.readUTF());
+                in.readUTF();
                 tipos.add(in.readUTF());
             }
 
@@ -155,7 +280,7 @@ public class Registro {
                     retorno += 2;
                 }
                 if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                    retorno += 2;
+                    retorno += 1;
                 }
                 if (tipos.get(i).equalsIgnoreCase("date    ")) {
                     retorno += 12;
@@ -167,7 +292,7 @@ public class Registro {
             }
             retorno += 5;
             return retorno;
-        }finally{
+        } finally {
             in.close();
         }
     }
