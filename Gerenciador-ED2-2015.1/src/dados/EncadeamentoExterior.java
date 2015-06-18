@@ -204,16 +204,21 @@ public class EncadeamentoExterior {
                          tabelaHash.writeInt(qtdRegistros); //escrevendo na tabela e ocupando a posição 
                      }
 
-                  }else{ //Caso 2 - A posição na tabela hash está ocupada 
+                  }else{ //Caso 2 - A posição na tabela hash está ocupada
+                      
+                        int x = posicaoHash*registroInserir.tamanhoRegistro; //
+                      
                         arquivoRegistros.seek(posicaoHash*registroInserir.tamanhoRegistro); //vou para a posição que já esta ocupada no arquivo
-
+                        
+                        atualAnterior = posicaoHash*registroInserir.tamanhoRegistro;
+                        
                         //lendo o registros atual que está ocupando a posição
                         Registro atual = new Registro();          
                         atual.chave = arquivoRegistros.readInt();
                         i=1; 
                         
                         try{
-                            //percorrer array de tipos e ler
+                        //percorrer array de tipos e ler
                         for (Tipo atributo : registroInserir.atributos){ 
                                 if (tipos.get(i).equalsIgnoreCase("integer ")) { 
                                     Inteiro inteiro = new Inteiro (arquivoRegistros.readInt());
@@ -260,7 +265,7 @@ public class EncadeamentoExterior {
                                  //muda só a flag
                                  atual.flag = false;
 
-                                 arquivoRegistros.seek(posicaoHash*(registroInserir.tamanhoRegistro-6)); // posiciona para começo do boolean
+                                 arquivoRegistros.seek(posicaoHash*(registroInserir.tamanhoRegistro-5)); // posiciona para começo do boolean
 
                                  arquivoRegistros.writeBoolean(atual.flag);
 
@@ -322,8 +327,9 @@ public class EncadeamentoExterior {
                                     //atualizo registro atual e faço encadeamento
                                     atual.prox = qtdRegistros;
 
-                                    arquivoRegistros.seek(posicaoHash*(registroInserir.tamanhoRegistro-4)); // posiciona para começo do proximo
-
+                                    arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro-4)); // posiciona para começo do proximo do atual
+                                    
+                                    
                                     arquivoRegistros.writeInt(atual.prox); //atualiza proximo do atual
 
                                     //insiro o novo registro na linha livre
@@ -443,6 +449,7 @@ public class EncadeamentoExterior {
                                                          arquivoRegistros.seek(atualAnterior*(registroInserir.tamanhoRegistro)); // posiciona para começo da linha 
 
                                                          //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
+                                                         System.out.println (registroInserir.chave);
                                                          arquivoRegistros.writeInt(registroInserir.chave);
 
 

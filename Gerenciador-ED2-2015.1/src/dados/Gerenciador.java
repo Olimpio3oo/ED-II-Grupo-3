@@ -94,6 +94,7 @@ public class Gerenciador {
                         break;
 
                     case 6:
+                    
                         System.out.println("Digite o nome da tabela que deseja mostrar os registro");
                         n = teclado.next();
                         mostrarRegistros(n);
@@ -561,13 +562,13 @@ public class Gerenciador {
                    tamRegistro+=2;
                 }
                 if (tipo.equalsIgnoreCase("boolean ")) {
-                    tamRegistro+=2;
+                    tamRegistro+=1;
                 }
                 if (tipo.equalsIgnoreCase("date    ")) {
                     tamRegistro+=12;
                 }
                 if (tipo.equalsIgnoreCase("string  ")) {
-                   tamRegistro+=20;
+                   tamRegistro+=18;
                 }
 
             }
@@ -575,25 +576,32 @@ public class Gerenciador {
         } catch (EOFException e) {
             
           int qtdRegistros =0;
+          tamRegistro+= 5 ; //registro + flag + proximo
           
-           arquivo = new RandomAccessFile(new File(tabela.toLowerCase() + "_registros.dat"), "r");
-           
+          arquivo = new RandomAccessFile(new File(tabela.toLowerCase() + "_registros.dat"), "r");
+          int seek;
+          int malditoCodigo ;
+          
+          arquivo.seek(0);
             try{
                 //consultar quantros registros já tem no arquivo
                 while(true){
-                    arquivo.readInt();
+                    malditoCodigo = arquivo.readInt();
                     qtdRegistros++; //quantos registros já tem no arquivo 
                     arquivo.seek(qtdRegistros*tamRegistro); //ja deixa o ponteiro na posição certa para leitura
                 }
             }catch (Exception d){
                       //ler regitros
-            arquivo.seek(0);
+                
+            //arquivo.seek(0);
             while (continua) {
                 for (int x = 0 ; x < qtdRegistros ; x++){
+                     arquivo.seek(x*tamRegistro);
                      for (String tipoAtributo : tipoAtributos) {      
                         if(contador != tipoAtributos.size()){
                              if (tipoAtributo.equalsIgnoreCase("integer ")) {
-                            System.out.println(arquivo.readInt());
+                                 int numero = arquivo.readInt();
+                                  System.out.println(numero);
                             }
                             if (tipoAtributo.equalsIgnoreCase("float   ")) {
                                 System.out.println(arquivo.readFloat());
@@ -611,135 +619,25 @@ public class Gerenciador {
                                 System.out.println(arquivo.readUTF());
                             }
                             if (tipoAtributo.equalsIgnoreCase("string  ")) {
-                                System.out.println(arquivo.readUTF());
+                                String nome = arquivo.readUTF();
+                                System.out.println(nome);
                             }   
                             contador++;
                         }  
                     }
-                     
                     System.out.println(arquivo.readBoolean());
-                    System.out.println(arquivo.readInt());
-                    
+                    System.out.println(arquivo.readInt()); 
+                   
                     contador =0;
                 }
                continua = false;
             }
            
-                
-                
-
                 arquivo.close();
                 System.out.println("fechando tabela: " + tabela);  
             }  
-            
-
         
-        /*RandomAccessFile arquivo;
-        List<String> tipoAtributos = new ArrayList<String>();
-        int i = 1;// controle do seek
-        int tamRegistro = 0;
-        String tipo;
-
-        try {
-            //teste para ver se a tabela existe
-            //in = new DataInputStream(new BufferedInputStream(new FileInputStream(tabela+"_atributos.dat")));
-            arquivo = new RandomAccessFile(new File(tabela + "_atributos.dat"), "r");
-
-            //ler a tabela atributos 
-            // tamanho do registro 20 ( atributo ) + 10 ( tipo) = 30;
-            //mas só quero o tipo 30*numReg-10
-            //arquivo.seek(20);
-            while (true) {
-                arquivo.readUTF();
-                tipo = arquivo.readUTF();
-                tipoAtributos.add(tipo);
-                
-                //calcular tamanho do registro
-                if (tipo.equalsIgnoreCase("integer ")) {
-                    tamRegistro+=Integer.BYTES;
-                }
-                if (tipo.equalsIgnoreCase("float   ")) {
-                    tamRegistro+=Float.BYTES;
-                }
-                if (tipo.equalsIgnoreCase("double  ")) {
-                   tamRegistro+= Double.BYTES;
-                }
-                if (tipo.equalsIgnoreCase("char    ")) {
-                   tamRegistro+=2;
-                }
-                if (tipo.equalsIgnoreCase("boolean ")) {
-                    tamRegistro+=2;
-                }
-                if (tipo.equalsIgnoreCase("date    ")) {
-                    tamRegistro+=12;
-                }
-                if (tipo.equalsIgnoreCase("string  ")) {
-                   tamRegistro+=20;
-                }
-                
-               // i++;
-               // arquivo.seek(30 * i - 10);
-
-            }
-
-        } catch (EOFException e) {
-            //ler regitros
-            arquivo = new RandomAccessFile(new File(tabela.toLowerCase() + "_registros.dat"), "r");
-            
-            //tamanho registro + flag + proximo
-            tamRegistro+=6;
-            
-            //ler qtd de registros
-            int qtdRegistros =0;
-            try{
-                //consultar quantros registros já tem no arquivo
-                while(true){
-                    arquivo.readInt();
-                    qtdRegistros++; //quantos registros já tem no arquivo 
-                    arquivo.seek(qtdRegistros*tamRegistro); //ja deixa o ponteiro na posição certa para leitura
-                }
-                
-            }catch(Exception c) {          
-                for (int x = 0 ; x < qtdRegistros ; x++){ //passar por todos os registros
-                    /*for (i = 0; i < tipoAtributos.size(); i++) {
-                        if (tipoAtributos.get(i).equalsIgnoreCase("integer ")) {
-                            System.out.println(arquivo.readInt());
-                        }
-                        if (tipoAtributos.get(i).equalsIgnoreCase("float   ")) {
-                            System.out.println(arquivo.readFloat());
-                        }
-                        if (tipoAtributos.get(i).equalsIgnoreCase("double  ")) {
-                            System.out.println(arquivo.readFloat());
-                        }
-                        if (tipoAtributos.get(i).equalsIgnoreCase("char    ")) {
-                            System.out.println(arquivo.readUTF());
-                        }
-                        if (tipoAtributos.get(i).equalsIgnoreCase("boolean ")) {
-                            System.out.println(arquivo.readBoolean());
-                        }
-                        if (tipoAtributos.get(i).equalsIgnoreCase("date    ")) {
-                            System.out.println(arquivo.readUTF());
-                        }
-                        if (tipoAtributos.get(i).equalsIgnoreCase("string  ")) {
-                            System.out.println(arquivo.readUTF());
-                        }
-                    }
-                    
-                    //ler a flag
-                    arquivo.readBoolean();
-                    
-                    //ler o proximo
-                    arquivo.readInt();*-/
-                    
-                    System.out.println(arquivo.readInt());
-                }
-
-            } finally {
-                arquivo.close();
-                System.out.println("fechando tabela: " + tabela);
-            }
-
-        }*/
+        
     }
    }
 
@@ -748,9 +646,11 @@ public class Gerenciador {
     }
 
     private static void inserirRegistros(String nomeTabela, Scanner teclado) throws IOException {
-
+        
         String nomeArquivoHash = nomeTabela + "_hash.dat";
         String nomeArquivoDados = nomeTabela + "_registros.dat";
+        
+        lerHash(nomeArquivoHash);
 
         CompartimentoHash compartimento = new CompartimentoHash(-1);
 
@@ -822,14 +722,14 @@ public class Gerenciador {
                     registro.atributos.add(str);
                     registro.tamanhoRegistro += 20;
                 }
-                //registro.tamanhoRegistro += 1;
+              //registro.tamanhoRegistro += 1;
             }
             
-            registro.tamanhoRegistro+= 6 ; //flag + prox;
+            registro.tamanhoRegistro+= 5 ; //flag + prox;
             registro.flag = false;
             registro.prox = -1;
             Inteiro inteiro = (Inteiro) registro.atributos.get(0);
-            registro.chave = inteiro.inteiro ;
+            registro.chave = inteiro.inteiro;
             
             try {
                 EncadeamentoExterior encadeamento = new EncadeamentoExterior();
@@ -870,6 +770,31 @@ public class Gerenciador {
             }
         }
 
+    }
+    
+    public static  void lerHash (String nomeTabelaHash) throws FileNotFoundException, IOException{
+        DataInputStream in = null;
+        //Zera a lista de funcionários
+
+        try {
+            System.out.println("Abrindo arquivo para leitura...");
+            in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabelaHash)));
+            System.out.println("Lendo...");
+
+            while (true) {
+                System.out.println(in.readInt());
+
+                System.out.println();
+            }
+
+        } catch (EOFException e) {
+            //arquivo terminou
+        } finally {
+            System.out.println("Fechando arquivo...");
+            if (in != null) {
+                in.close();
+            }
+        }
     }
 
 }
