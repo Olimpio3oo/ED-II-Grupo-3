@@ -462,6 +462,9 @@ public class Gerenciador {
         DataInputStream in = null;
         List<String> nomeTabelas = new ArrayList<String>();
 
+        
+        
+        
         try {
             //teste para ver se a tabela existe
             in = new DataInputStream(new BufferedInputStream(new FileInputStream(tabelaExcluir + "_atributos.dat")));
@@ -537,11 +540,12 @@ public class Gerenciador {
             //ler a tabela atributos 
             // tamanho do registro 20 ( atributo ) + 10 ( tipo) = 30;
             //mas só quero o tipo 30*numReg-10
-            arquivo.seek(20);
+            //arquivo.seek(20);
             while (true) {
+                arquivo.readUTF();
                 tipoAtributos.add(arquivo.readUTF());
-                i++;
-                arquivo.seek(30 * i - 10);
+               // i++;
+               // arquivo.seek(30 * i - 10);
 
             }
 
