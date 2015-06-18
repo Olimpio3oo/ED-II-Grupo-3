@@ -62,44 +62,47 @@ public class Registro {
             for (int i = 1; i < tipos.size(); i++) {
 
                 if (tipos.get(i).equalsIgnoreCase("integer ")) {
-                    inteiro = new Inteiro(atributos.readInt());
+                    inteiro = new Inteiro(registros.readInt());
                     registro.atributos.add(inteiro);
                     registro.tamanhoRegistro += Integer.BYTES;
                 }
                 if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                    PontoFlutuante pf = new PontoFlutuante(atributos.readFloat());
+                    PontoFlutuante pf = new PontoFlutuante(registros.readFloat());
                     registro.atributos.add(pf);
                     registro.tamanhoRegistro += Float.BYTES;
                 }
                 if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                    PontoFlutuanteDuplo pfd = new PontoFlutuanteDuplo(atributos.readDouble());
+                    PontoFlutuanteDuplo pfd = new PontoFlutuanteDuplo(registros.readDouble());
                     registro.atributos.add(pfd);
                     registro.tamanhoRegistro += Double.BYTES;
                 }
                 if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                    Palavra str = new Palavra(atributos.readUTF());
+                    Palavra str = new Palavra(registros.readUTF());
                     registro.atributos.add(str);
                     registro.tamanhoRegistro += 2;
                 }
                 if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                    Decisao bool = new Decisao(atributos.readBoolean());
+                    Decisao bool = new Decisao(registros.readBoolean());
                     registro.atributos.add(bool);
-                    registro.tamanhoRegistro += 2;
+                    registro.tamanhoRegistro += 1;
                 }
                 if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                    Date d = new Date(atributos.readUTF());
+                    Date d = new Date(registros.readUTF());
                     Data data = new Data(d);
                     registro.atributos.add(data);
                     registro.tamanhoRegistro += 12;
                 }
                 if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                    Palavra str = new Palavra(atributos.readUTF());
+                    Palavra str = new Palavra(registros.readUTF());
                     registro.atributos.add(str);
                     registro.tamanhoRegistro += 20;
                 }
             }
+            registro.prox = registros.readInt();
+            registro.flag = registros.readBoolean();
+            
         } finally {
-
+            in.close();
         }
         return null;
     }
@@ -108,6 +111,8 @@ public class Registro {
         for (int i = 0; i < atributos.size(); i++) {
             out.writeUTF(atributos.get(i).toString());
         }
+        out.writeInt(prox);
+        out.writeBoolean(flag);
     }
 
     /**
@@ -157,6 +162,7 @@ public class Registro {
                 }
 
             }
+            retorno += 5;
             return retorno;
         }finally{
             in.close();

@@ -649,7 +649,7 @@ public class Gerenciador {
                 if (tipos.get(i).equalsIgnoreCase("boolean ")) {
                     Decisao bool = new Decisao(teclado.nextBoolean());
                     registro.atributos.add(bool);
-                    registro.tamanhoRegistro += 2;
+                    registro.tamanhoRegistro += 1;
                 }
                 if (tipos.get(i).equalsIgnoreCase("date    ")) {
                     System.out.println("Digite a data no formato: MM/DD/AAAA");
@@ -663,12 +663,12 @@ public class Gerenciador {
                     registro.atributos.add(str);
                     registro.tamanhoRegistro += 20;
                 }
-
+                registro.tamanhoRegistro += 1;
             }
             try {
                 EncadeamentoExterior encadeamento = new EncadeamentoExterior();
 
-                int nRegistros = encadeamento.numeroRegistros(nomeArquivoHash, false, false);
+                int nRegistros = encadeamento.numeroRegistros(nomeArquivoDados, false, false);
 
                 System.out.println(nRegistros);
                 encadeamento.insere(registro.chave, registro.atributos, nomeArquivoHash, nomeArquivoDados, nomeTabela, nRegistros);
