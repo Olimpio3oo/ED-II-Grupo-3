@@ -125,7 +125,7 @@ public class EncadeamentoExterior {
         //TODO: Inserir aqui o código do algoritmo de inserção
 
         RandomAccessFile tabelaHash = new RandomAccessFile(new File(nomeArquivoHash), "rw");
-        RandomAccessFile arquivo = new RandomAccessFile(new File(nomeArquivoDados), "rw");
+        RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(nomeArquivoDados), "rw");
         DataInputStream atributos = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
         Registro registro = null;
         int tam = Registro.tamanhoReg(nomeTabela);
@@ -139,8 +139,8 @@ public class EncadeamentoExterior {
         int ultimoEnd = -2;
         try {
             while (end.prox != -1) {
-                arquivo.seek(end.prox * tam);
-                registro = Registro.le(atributos, arquivo, nomeTabela);
+                arquivoRegistros.seek(end.prox * tam);
+                registro = Registro.le(atributos, arquivoRegistros, nomeTabela);
                 if (chave == registro.chave && registro.flag == registro.OCUPADO) {
                     return -1;
                 }
@@ -155,27 +155,27 @@ public class EncadeamentoExterior {
                 proxRegistro.chave = chave;
                 proxRegistro.atributos = atr;
                 proxRegistro.flag = registro.OCUPADO;
-                arquivo.seek(proxEndereco * tam);
-                proxRegistro.salva(arquivo);
+                arquivoRegistros.seek(proxEndereco * tam);
+                proxRegistro.salva(arquivoRegistros);
                 return proxEndereco;
             }
             end.prox = numRegistros;
-            arquivo.seek(end.prox * tam);
+            arquivoRegistros.seek(end.prox * tam);
 
-            new Registro(chave, atr, -1, registro.OCUPADO).salva(arquivo);
+            new Registro(chave, atr, -1, registro.OCUPADO).salva(arquivoRegistros);
             if (registro == null) {
                 tabelaHash.seek(hashcode * CompartimentoHash.tamanhoRegistro);
                 end.salva(tabelaHash);
                 return end.prox;
             } else {
                 registro.prox = numRegistros;
-                arquivo.seek(ultimoEnd * tam);
-                registro.salva(arquivo);
+                arquivoRegistros.seek(ultimoEnd * tam);
+                registro.salva(arquivoRegistros);
             }
             return registro.prox;
         } finally {
             tabelaHash.close();
-            arquivo.close();
+            arquivoRegistros.close();
         }
     }
 
