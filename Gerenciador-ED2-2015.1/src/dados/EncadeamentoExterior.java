@@ -109,6 +109,53 @@ public class EncadeamentoExterior {
         return -1;
     }
 
+    //essa busca retorna o registro
+    /**
+     *
+     * @param registroBusca
+     * @param nomeArquivoDados
+     * @param nomeTabela
+     * @return
+     * @throws Exception
+     */
+    public Registro buscaRegistro(Registro registroBusca, RandomAccessFile arquivoRegistros, String nomeTabela) throws Exception {
+
+        //RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(nomeArquivoDados), "rw");
+        //DataInputStream atributos = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
+        Registro registroAtual = new Registro();
+        int combina = 0;
+
+        registroAtual = Registro.le(arquivoRegistros, nomeTabela); //registro atual
+
+        if (registroBusca.chave == registroAtual.chave) {
+            combina++;
+        }
+
+        try {
+            for (int j = 0; j < registroAtual.atributos.size(); j++) {
+                for (int x = 0; x < registroAtual.atributos.size(); x++) {
+                    if (registroBusca.atributos.get(j) == registroAtual.atributos.get(x)) {
+                        combina++;
+                    }
+
+                    Palavra p1 = (Palavra)registroBusca.atributos.get(j);
+                    Palavra p2 = (Palavra)registroAtual.atributos.get(x);
+                    if (p1.palavra.equalsIgnoreCase(p2.palavra)) {
+                        combina++;
+                    }
+
+                }
+            }
+        } finally {
+            if (combina > 0) {
+                return registroAtual;
+            } else {
+                return null;
+            }
+        }
+
+    }
+
     /**
      * Executa inserção em Arquivos por Encadeamento Exterior (Hash)
      *
@@ -141,23 +188,18 @@ public class EncadeamentoExterior {
             Registro registro = null; //registro atual
             int tam = Registro.tamanhoReg(nomeTabela);
 
-
             int hashcode = chave % 7;
 
             //bia -  pegando o ultimo endereço 
             tabelaHash.seek(hashcode * CompartimentoHash.tamanhoRegistro);
             int ultimoEnd = tabelaHash.readInt();
-            
-            
-            
+
             tabelaHash.seek(hashcode * CompartimentoHash.tamanhoRegistro);
             CompartimentoHash end = CompartimentoHash.le(tabelaHash);
             Registro proxRegistro = null;
             int proxEndereco = -2;
             //int ultimoEnd = -2;
-            
-            
-            
+
             try {
                 while (end.prox != -1) { //colisão
                     arquivoRegistros.seek(end.prox * tam);
@@ -169,13 +211,14 @@ public class EncadeamentoExterior {
                         proxRegistro = registro;
                         proxEndereco = end.prox;
                     }
-                    
-                   end.prox = registro.prox;
+
+                    end.prox = registro.prox;
                    //ultimoEnd = end.prox;
-                   
-                   //bia 
-                   if(registro.prox != -1)
-                        ultimoEnd = registro.prox;  
+
+                    //bia 
+                    if (registro.prox != -1) {
+                        ultimoEnd = registro.prox;
+                    }
                 }
                 if (proxRegistro != null) {
                     proxRegistro.chave = chave;
@@ -242,7 +285,7 @@ public class EncadeamentoExterior {
                 if (registro.chave == CodCli) {
                     registro.flag = registro.LIBERADO;
                     arquivo.seek(compartimento.prox * tam);
-                    registro.salva(arquivo, nomeTabela);
+                    registro.salvaVelho(arquivo, nomeTabela);
 
                     return compartimento.prox;
                 } else {

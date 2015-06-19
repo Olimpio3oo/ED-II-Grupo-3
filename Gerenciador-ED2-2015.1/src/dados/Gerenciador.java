@@ -105,8 +105,9 @@ public class Gerenciador {
                         excluirRegistro(n, teclado);
                         break;
                     case 8:
-
                         System.out.println("Digite o nome da tabela onde o registro esta");
+                        n = teclado.next();
+                        buscaRegistro(n, teclado);
                         break;
 
                     default:
@@ -186,8 +187,8 @@ public class Gerenciador {
         System.out.println("‖█ " + (char) 27 + "[36m 4 - EXCLUIR TABELA " + (char) 27 + "[0m");
         System.out.println("‖█ " + (char) 27 + "[36m 5 - INSERIR REGISTROS " + (char) 27 + "[0m");
         System.out.println("‖█ " + (char) 27 + "[36m 6 - MOSTRAR REGISTROS" + (char) 27 + "[0m");
-        System.out.println("‖█ " + (char) 27 + "[36m 7 - EXCLUIR REGISTROS" + (char) 27 + "[0m");
-        System.out.println("‖█ " + (char) 27 + "[36m 8 - BUSCAR REGISTROS" + (char) 27 + "[0m");
+        System.out.println("‖█ " + (char) 27 + "[36m 7 - EXCLUIR REGISTRO" + (char) 27 + "[0m");
+        System.out.println("‖█ " + (char) 27 + "[36m 8 - BUSCAR REGISTRO" + (char) 27 + "[0m");
         System.out.println("‖█ " + (char) 27 + "[36m 0 - SAIR   ");
         System.out.println((char) 27 + "[33m⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻" + (char) 27 + "[0m");
         System.out.print("===> ");
@@ -582,6 +583,150 @@ public class Gerenciador {
 
     private static void modificarRegistros(Tabela tab, List<Tabela> tabelas, Scanner teclado, HashMap<String, String> lista) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static void buscaRegistro(String nomeTabela, Scanner teclado) throws IOException, Exception {
+
+        System.out.println("PREENCHA OS ATRIBUTOS QUE DESEJA BUSCAR");
+
+        //preenchedo os atributos
+        Registro registro = new Registro(); //novo registro 
+        ArrayList<String> tipos = new ArrayList<>();
+        ArrayList<String> nomes = new ArrayList<>();
+        DataInputStream in = null;
+        RandomAccessFile arquivoDados = null;
+        String resposta;
+        int contChave = 0; // vai controlar se a chave foi escolhida como parametro
+        Registro retorno = null;
+        String nomeArquivoDados = nomeTabela + "_registros.dat";
+
+        try {
+            in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
+
+            arquivoDados = new RandomAccessFile(nomeTabela + "_registros.dat", "rw");
+//            for (int i = 0; i < 7; i++) {
+//                compartimento.salva(arquivoHash);
+//            }
+            while (true) {
+                nomes.add(in.readUTF());
+                tipos.add(in.readUTF());
+            }
+
+        } catch (Exception e) {
+            //System.out.println("Digite o valor da chave do registro");
+            //registro.chave = teclado.nextInt();
+            //Inteiro inteiro = new Inteiro(registro.chave);
+            //registro.atributos.add(0, inteiro);
+
+            //chave não pode entrar em atributos
+            for (int i = 0; i < tipos.size(); i++) {
+
+                System.out.println("Digite deseja buscar o atributo " + nomes.get(i) + " s para sim e n para não");
+                resposta = teclado.next();
+
+                if (resposta.equalsIgnoreCase("s")) {
+                    System.out.println("Digite o valor de busca do atributo " + nomes.get(i));
+                    if (tipos.get(i).equalsIgnoreCase("integer ")) {
+                        Inteiro inteiro = new Inteiro(teclado.nextInt());
+                        registro.atributos.add(inteiro);
+                        registro.tamanhoRegistro += Integer.BYTES;
+
+                        if (i == 0) {
+                            contChave++; //vendo se a chave foi escolhida como parametro
+                        }
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("float   ")) {
+                        PontoFlutuante pf = new PontoFlutuante(teclado.nextFloat());
+                        registro.atributos.add(pf);
+                        registro.tamanhoRegistro += Float.BYTES;
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("double  ")) {
+                        PontoFlutuanteDuplo pfd = new PontoFlutuanteDuplo(teclado.nextDouble());
+                        registro.atributos.add(pfd);
+                        registro.tamanhoRegistro += Double.BYTES;
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("char    ")) {
+                        Palavra str = new Palavra(teclado.next());
+                        registro.atributos.add(str);
+                        registro.tamanhoRegistro += 2;
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("boolean ")) {
+                        Decisao bool = new Decisao(teclado.nextBoolean());
+                        registro.atributos.add(bool);
+                        registro.tamanhoRegistro += 1;
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("date    ")) {
+                        System.out.println("Digite a data no formato: MM/DD/AAAA");
+                        Date d = new Date(teclado.next());
+                        Data data = new Data(d);
+                        registro.atributos.add(data);
+                        registro.tamanhoRegistro += 12;
+                    }
+                    if (tipos.get(i).equalsIgnoreCase("string  ")) {
+                        Palavra str = new Palavra(teclado.next());
+                        registro.atributos.add(str);
+                        registro.tamanhoRegistro += 20;
+                    }
+
+                }
+
+            }
+            EncadeamentoExterior encadeamento = new EncadeamentoExterior();
+            int qtdRegistros = encadeamento.numeroRegistros(nomeTabela);
+            int cont = 0;
+            int tam = Registro.tamanhoReg(nomeTabela);
+
+            if (contChave == 1) {
+                int j = 0;
+                Inteiro inteiro = (Inteiro) registro.atributos.get(0);
+                registro.chave = inteiro.inteiro;
+                //arquivoDados.seek(0);
+                while (retorno == null && cont < qtdRegistros) {
+                    arquivoDados.seek(j * tam);
+                    retorno = encadeamento.buscaRegistro(registro, arquivoDados, nomeTabela);
+                    cont++;
+                    j++;
+                }
+
+                //escrevendo registro
+                System.out.println("-----RETORNO DA BUSCA--------");
+                System.out.println("Chave: " + retorno.chave);
+
+                System.out.println("Atributos: ");
+
+                for (int x = 0; x < retorno.atributos.size(); x++) {
+                    System.out.println(retorno.atributos.get(x));
+                }
+
+            } else {
+
+                arquivoDados.seek(0); //coloca no começo do arquivo
+
+                for (int j = 0; j < qtdRegistros; j++) { //retorna quantos retornos possíves
+                    arquivoDados.seek(j * tam);
+                    
+                    if(registro.chave == 0){
+                        registro.chave = -10;
+                    }
+                    
+                    retorno = encadeamento.buscaRegistro(registro, arquivoDados, nomeTabela);
+
+                    if (retorno != null) {
+                        //escrevendo registro
+                        System.out.println("-----RETORNO DA BUSCA--------");
+                        System.out.println("Chave: " + retorno.chave);
+
+                        System.out.println("Atributos: ");
+
+                        for (int x = 0; x < retorno.atributos.size(); x++) {
+                            System.out.println(retorno.atributos.get(x));
+                        }
+                    }
+
+                }
+
+            }
+        }
     }
 
     private static void inserirRegistros(String nomeTabela, Scanner teclado) throws IOException {

@@ -120,7 +120,7 @@ public class Registro {
 
             //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
             arquivoRegistros.writeInt(this.chave);
-            System.out.println(this.chave);
+            //System.out.println(this.chave);
 
             //escrever os atributos
             for (int i = 1; i < tipos.size(); i++) {
@@ -128,7 +128,7 @@ public class Registro {
                 if (tipos.get(i).equalsIgnoreCase("integer ")) {
                     Inteiro inteiro = (Inteiro) this.atributos.get(i);
                     arquivoRegistros.writeInt(inteiro.inteiro);
-                    System.out.println(inteiro.inteiro);
+                    //System.out.println(inteiro.inteiro);
 
                 }
                 if (tipos.get(i).equalsIgnoreCase("float   ")) {
@@ -152,22 +152,20 @@ public class Registro {
                     arquivoRegistros.writeUTF(data.data.toString());
                 }
                 if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                   // System.out.println(this.atributos.get(i));
-                   //System.out.println("---------------------");
                     Palavra palavra = (Palavra) this.atributos.get(i);
                     arquivoRegistros.writeUTF(palavra.palavra);
-                    System.out.println(palavra.palavra);
+                    //System.out.println(palavra.palavra);
                 }
                 //i++;
             }
 
             //escrever a flag 
             arquivoRegistros.writeBoolean(this.flag);
-            System.out.println(this.flag);
+            //System.out.println(this.flag);
 
             //escrever proximo
             arquivoRegistros.writeInt(this.prox);
-            System.out.println(this.prox);
+            //System.out.println(this.prox);
 
         }
     }
@@ -190,7 +188,7 @@ public class Registro {
 
             //escrevendo no arquivo o novo registro - chave, atributos , flag e prox
             arquivoRegistros.writeInt(this.chave);
-            System.out.println(this.chave);
+            //System.out.println(this.chave);
 
             //escrever os atributos
             for (int j = 1; j < tipos.size(); j++) {
@@ -198,7 +196,7 @@ public class Registro {
                 if (tipos.get(j).equalsIgnoreCase("integer ")) {
                     Inteiro inteiro = (Inteiro) this.atributos.get(i);
                     arquivoRegistros.writeInt(inteiro.inteiro);
-                    System.out.println(inteiro.inteiro);
+                    //System.out.println(inteiro.inteiro);
 
                 }
                 if (tipos.get(j).equalsIgnoreCase("float   ")) {
@@ -224,18 +222,18 @@ public class Registro {
                 if (tipos.get(j).equalsIgnoreCase("string  ")) {
                     Palavra palavra = (Palavra) this.atributos.get(i);
                     arquivoRegistros.writeUTF(palavra.palavra);
-                    System.out.println(palavra.palavra);
+                    //System.out.println(palavra.palavra);
                 }
                 i++;
             }
 
             //escrever a flag 
             arquivoRegistros.writeBoolean(this.flag);
-            System.out.println(this.flag);
+            //System.out.println(this.flag);
 
             //escrever proximo
             arquivoRegistros.writeInt(this.prox);
-            System.out.println(this.prox);
+            //System.out.println(this.prox);
 
         }
     }
