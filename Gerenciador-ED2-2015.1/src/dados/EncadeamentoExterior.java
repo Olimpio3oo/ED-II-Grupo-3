@@ -614,21 +614,30 @@ public class EncadeamentoExterior {
             RandomAccessFile tabelaHash = new RandomAccessFile(new File(nomeArquivoHash), "rw");
             //RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(nomeArquivoDados), "rw");
             DataInputStream atributos = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela + "_atributos.dat")));
-            Registro registro = null;
+            Registro registro = null; //registro atual
             int tam = Registro.tamanhoReg(nomeTabela);
+
 
             int hashcode = chave % 7;
 
+            //bia -  pegando o ultimo endereço 
+            tabelaHash.seek(hashcode * CompartimentoHash.tamanhoRegistro);
+            int ultimoEnd = tabelaHash.readInt();
+            
+            
+            
             tabelaHash.seek(hashcode * CompartimentoHash.tamanhoRegistro);
             CompartimentoHash end = CompartimentoHash.le(tabelaHash);
             Registro proxRegistro = null;
             int proxEndereco = -2;
-            int ultimoEnd = -2;
-
+            //int ultimoEnd = -2;
+            
+            
+            
             try {
-                while (end.prox != -1) {
+                while (end.prox != -1) { //colisão
                     arquivoRegistros.seek(end.prox * tam);
-                    registro = Registro.le(arquivoRegistros, nomeTabela);
+                    registro = Registro.le(arquivoRegistros, nomeTabela); //registro atual
                     if (chave == registro.chave && registro.flag == registro.OCUPADO) {
                         return -1;
                     }
@@ -636,8 +645,13 @@ public class EncadeamentoExterior {
                         proxRegistro = registro;
                         proxEndereco = end.prox;
                     }
-                    ultimoEnd = end.prox;
-                    end.prox = registro.prox;
+                    
+                   end.prox = registro.prox;
+                   //ultimoEnd = end.prox;
+                   
+                   //bia 
+                   if(registro.prox != -1)
+                        ultimoEnd = registro.prox;  
                 }
                 if (proxRegistro != null) {
                     proxRegistro.chave = chave;
@@ -658,7 +672,7 @@ public class EncadeamentoExterior {
                 } else {
                     registro.prox = qtdRegistros;
                     arquivoRegistros.seek(ultimoEnd * tam);
-                    registro.salva(arquivoRegistros, nomeTabela);
+                    registro.salvaVelho(arquivoRegistros, nomeTabela);
                 }
                 return registro.prox;
             } finally {

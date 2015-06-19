@@ -802,10 +802,10 @@ public class Gerenciador {
             }
 
         } catch (Exception e) {
-//            System.out.println("Digite o valor da chave do registro");
-//            registro.chave = teclado.nextInt();
-//            Inteiro inteiro = new Inteiro(registro.chave);
-//            registro.atributos.add(0, inteiro);
+            //System.out.println("Digite o valor da chave do registro");
+            //registro.chave = teclado.nextInt();
+            //Inteiro inteiro = new Inteiro(registro.chave);
+            //registro.atributos.add(0, inteiro);
             
             
             //chave não pode entrar em atributos
