@@ -94,10 +94,19 @@ public class Gerenciador {
                         break;
 
                     case 6:
-                    
+
                         System.out.println("Digite o nome da tabela que deseja mostrar os registro");
                         n = teclado.next();
                         mostrarRegistros(n);
+                        break;
+                    case 7:
+                        System.out.println("Digite o nome da tabela onde o registro esta");
+                        n = teclado.next();
+                        excluirRegistro(n, teclado);
+                        break;
+                    case 8:
+
+                        System.out.println("Digite o nome da tabela onde o registro esta");
                         break;
 
                     default:
@@ -177,6 +186,8 @@ public class Gerenciador {
         System.out.println("‖█ " + (char) 27 + "[36m 4 - EXCLUIR TABELA " + (char) 27 + "[0m");
         System.out.println("‖█ " + (char) 27 + "[36m 5 - INSERIR REGISTROS " + (char) 27 + "[0m");
         System.out.println("‖█ " + (char) 27 + "[36m 6 - MOSTRAR REGISTROS" + (char) 27 + "[0m");
+        System.out.println("‖█ " + (char) 27 + "[36m 7 - EXCLUIR REGISTROS" + (char) 27 + "[0m");
+        System.out.println("‖█ " + (char) 27 + "[36m 8 - BUSCAR REGISTROS" + (char) 27 + "[0m");
         System.out.println("‖█ " + (char) 27 + "[36m 0 - SAIR   ");
         System.out.println((char) 27 + "[33m⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻⁻" + (char) 27 + "[0m");
         System.out.print("===> ");
@@ -463,9 +474,6 @@ public class Gerenciador {
         DataInputStream in = null;
         List<String> nomeTabelas = new ArrayList<String>();
 
-        
-        
-        
         try {
             //teste para ver se a tabela existe
             in = new DataInputStream(new BufferedInputStream(new FileInputStream(tabelaExcluir + "_atributos.dat")));
@@ -527,256 +535,61 @@ public class Gerenciador {
         }
     }
 
-    private static void mostrarRegistros(String tabela) throws FileNotFoundException, IOException {
+    private static void mostrarRegistros(String nomeTabela) throws FileNotFoundException, IOException {
 
-        try{
-            RandomAccessFile arquivoRegistros = new RandomAccessFile(new File(tabela.toLowerCase()+"_registros.dat"), "rw"); //abrindo o arquivo de registros
-            
-            RandomAccessFile arquivo;
-            List<String> tipos = new ArrayList<>();
-            int tamRegistro =0;
-            int contador = 0;
-            String tipo;
-            int qtdRegistros = 0;
-          
+        RandomAccessFile arquivoRegistros = null;
+        EncadeamentoExterior ecadeamento = new EncadeamentoExterior();
+        int qtdRegistros = ecadeamento.numeroRegistros(nomeTabela); //recuperando numero de registros contidos na tabela
+        Registro registroAtual = new Registro(); //objeto para armazenar e imprimir os registros
+        int tamRegistro = Registro.tamanhoReg(nomeTabela); //tamanho do registro para calcular seek
 
-            try {
-
-                arquivo = new RandomAccessFile(new File(tabela + "_atributos.dat"), "r");
-
-
-                while (true) {
-                    arquivo.readUTF();
-                    tipo = arquivo.readUTF();
-                    tipos.add(tipo);
-
-                    //calcular tamanho do registro
-                    if (tipo.equalsIgnoreCase("integer ")) {
-                        tamRegistro+=Integer.BYTES;
-                    }
-                    if (tipo.equalsIgnoreCase("float   ")) {
-                        tamRegistro+=Float.BYTES;
-                    }
-                    if (tipo.equalsIgnoreCase("double  ")) {
-                       tamRegistro+= Double.BYTES;
-                    }
-                    if (tipo.equalsIgnoreCase("char    ")) {
-                       tamRegistro+=2;
-                    }
-                    if (tipo.equalsIgnoreCase("boolean ")) {
-                        tamRegistro+=1;
-                    }
-                    if (tipo.equalsIgnoreCase("date    ")) {
-                        tamRegistro+=12;
-                    }
-                    if (tipo.equalsIgnoreCase("string  ")) {
-                       tamRegistro+=18;
-                    }
-                }
-                }catch(Exception r ){
-                    
-                    arquivo = new RandomAccessFile(new File(tabela.toLowerCase() + "_registros.dat"), "r");
-                    tamRegistro+=5;
-                    try{
-                        //consultar quantros registros já tem no arquivo
-                        while(true){
-                        arquivo.readInt();
-                        qtdRegistros++; //quantos registros já tem no arquivo 
-                        arquivo.seek(qtdRegistros*tamRegistro); 
-                        }
-                    }
-                    catch(Exception g){
-                        
-                        while(contador!=qtdRegistros){
-                            arquivoRegistros.seek(contador*tamRegistro); //vou para a posição que já esta ocupada no arquivo
-
-                            //lendo o registros atual que está ocupando a posição
-                            Registro atual = new Registro();          
-                            atual.chave = arquivoRegistros.readInt();
-                            int i=1; 
-
-                            try{
-                            //percorrer array de tipos e ler
-                            for (i = 1 ; i < tipos.size() ; i++){ 
-                                    if (tipos.get(i).equalsIgnoreCase("integer ")) { 
-                                        Inteiro inteiro = new Inteiro (arquivoRegistros.readInt());
-                                        atual.atributos.add(inteiro);
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("float   ")) {
-                                      PontoFlutuante ponto = new PontoFlutuante (arquivoRegistros.readFloat());
-                                         atual.atributos.add(ponto);
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("double  ")) {
-                                      PontoFlutuanteDuplo ponto = new PontoFlutuanteDuplo (arquivoRegistros.readDouble());
-                                      atual.atributos.add(ponto);
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("char    ")) {
-                                       Palavra palavra = new Palavra (arquivoRegistros.readUTF());
-                                       atual.atributos.add(palavra);
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("boolean ")) {
-                                        Decisao decisao = new Decisao (arquivoRegistros.readBoolean());
-                                        atual.atributos.add(decisao);
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("date    ")) {
-                                        String dataAux = arquivoRegistros.readUTF(); //leio a data em string do arquivo
-                                        Date data = new Date (dataAux); //crio um objeto dat com a data que estava no arquivo
-                                        Data dataFinal = new Data (data); // crio um objeto Data( Tipo ) com os dados pra pode adicionar nos atributos 
-                                        atual.atributos.add(dataFinal); //adiciona em atributos                 
-                                    }
-                                    if (tipos.get(i).equalsIgnoreCase("string  ")) {
-                                        Palavra palavra = new Palavra (arquivoRegistros.readUTF());
-                                        atual.atributos.add(palavra);
-                                    }
-                                    i++;
-                                }
-                            }catch(Exception t) {
-                                atual.flag = arquivoRegistros.readBoolean();
-                                atual.prox = arquivoRegistros.readInt();
-                            }
-                            
-                            System.out.println("Chave: "+atual.chave);
-                            
-                            System.out.println("Atributos: ");
-                            atual.atributos.stream().forEach((_item) -> {
-                                System.out.println(atual.atributos);
-                            });
-                            
-                            System.out.println("Flag: "+atual.flag);
-                            System.out.println("Próximo: "+atual.prox);
-                            System.out.println("-------------");
-                            
-                            
-                            contador++;
-                       }
-                    }
-                }
-     }catch(Exception t){
-                System.out.println("Não existe registros");
-     }
-        
-        
-       /* RandomAccessFile arquivo;
-        List<String> tipoAtributos = new ArrayList<String>();
-        int contador = 0;
-        int tamRegistro =0;
-        boolean continua = true;
-        String tipo;
+        System.out.format("+---------------------------+%n");
+        System.out.printf("|████   TABELAS    ████|%n");
+        System.out.format("+---------------------------+%n");
 
         try {
-            
-            arquivo = new RandomAccessFile(new File(tabela + "_atributos.dat"), "r");
+            arquivoRegistros = new RandomAccessFile(new File(nomeTabela.toLowerCase() + "_registros.dat"), "r");
 
+            for (int i = 0; i < qtdRegistros; i++) {
+                arquivoRegistros.seek(i * tamRegistro);
+                registroAtual = Registro.le(arquivoRegistros, nomeTabela); //registro atual
 
-            while (true) {
-                arquivo.readUTF();
-                tipo = arquivo.readUTF();
-                tipoAtributos.add(tipo);
-                
-                //calcular tamanho do registro
-                if (tipo.equalsIgnoreCase("integer ")) {
-                    tamRegistro+=Integer.BYTES;
-                }
-                if (tipo.equalsIgnoreCase("float   ")) {
-                    tamRegistro+=Float.BYTES;
-                }
-                if (tipo.equalsIgnoreCase("double  ")) {
-                   tamRegistro+= Double.BYTES;
-                }
-                if (tipo.equalsIgnoreCase("char    ")) {
-                   tamRegistro+=2;
-                }
-                if (tipo.equalsIgnoreCase("boolean ")) {
-                    tamRegistro+=1;
-                }
-                if (tipo.equalsIgnoreCase("date    ")) {
-                    tamRegistro+=12;
-                }
-                if (tipo.equalsIgnoreCase("string  ")) {
-                   tamRegistro+=18;
-                }
+                //escrevendo registros
+                if (registroAtual.flag != true) {
+                    System.out.println("Chave: " + registroAtual.chave);
 
-            }
+                    System.out.println("Atributos: ");
 
-        } catch (EOFException e) {
-            
-          int qtdRegistros =0;
-          tamRegistro+= 5 ; //registro + flag + proximo
-          
-          arquivo = new RandomAccessFile(new File(tabela.toLowerCase() + "_registros.dat"), "r");
-          int seek;
-          int malditoCodigo ;
-          
-          arquivo.seek(0);
-            try{
-                //consultar quantros registros já tem no arquivo
-                while(true){
-                    malditoCodigo = arquivo.readInt();
-                    qtdRegistros++; //quantos registros já tem no arquivo 
-                    arquivo.seek(qtdRegistros*tamRegistro); //ja deixa o ponteiro na posição certa para leitura
-                }
-            }catch (Exception d){
-                      //ler regitros
-                
-            //arquivo.seek(0);
-            while (continua) {
-                for (int x = 0 ; x < qtdRegistros ; x++){
-                     arquivo.seek(x*tamRegistro);
-                     for (String tipoAtributo : tipoAtributos) {      
-                        if(contador != tipoAtributos.size()){
-                             if (tipoAtributo.equalsIgnoreCase("integer ")) {
-                                 int numero = arquivo.readInt();
-                                  System.out.println(numero);
-                            }
-                            if (tipoAtributo.equalsIgnoreCase("float   ")) {
-                                System.out.println(arquivo.readFloat());
-                            }
-                            if (tipoAtributo.equalsIgnoreCase("double  ")) {
-                                System.out.println(arquivo.readFloat());
-                            }
-                            if (tipoAtributo.equalsIgnoreCase("char    ")) {
-                                System.out.println(arquivo.readUTF());
-                            }
-                            if (tipoAtributo.equalsIgnoreCase("boolean ")) {
-                                System.out.println(arquivo.readBoolean());
-                            }
-                            if (tipoAtributo.equalsIgnoreCase("date    ")) {
-                                System.out.println(arquivo.readUTF());
-                            }
-                            if (tipoAtributo.equalsIgnoreCase("string  ")) {
-                                String nome = arquivo.readUTF();
-                                System.out.println(nome);
-                            }   
-                            contador++;
-                        }  
+                    for (int x = 0; x < registroAtual.atributos.size(); x++) {
+                        System.out.println(registroAtual.atributos.get(x));
                     }
-                    System.out.println(arquivo.readBoolean());
-                    System.out.println(arquivo.readInt()); 
-                   
-                    contador =0;
+
+                    System.out.println("Flag: " + registroAtual.flag);
+                    System.out.println("Próximo: " + registroAtual.prox);
+                    System.out.println("-------------");
                 }
-               continua = false;
+
             }
-           
-                arquivo.close();
-                System.out.println("fechando tabela: " + tabela);  
-            }  
-        
-        
-    }*/
-   }
+
+        } catch (Exception e) {
+            System.out.println("----NÃO EXISTE NENHUM REGISTRO!----");
+        } finally {
+            arquivoRegistros.close();
+            System.out.println("-------FIM DOS REGISTROS-------");
+        }
+
+    }
 
     private static void modificarRegistros(Tabela tab, List<Tabela> tabelas, Scanner teclado, HashMap<String, String> lista) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private static void inserirRegistros(String nomeTabela, Scanner teclado) throws IOException {
-        
+
         String nomeArquivoHash = nomeTabela + "_hash.dat";
         String nomeArquivoDados = nomeTabela + "_registros.dat";
-        
-        lerHash(nomeArquivoHash);
 
+        //lerHash(nomeArquivoHash);
         CompartimentoHash compartimento = new CompartimentoHash(-1);
 
         DataInputStream in = null;
@@ -786,7 +599,6 @@ public class Gerenciador {
         ArrayList<String> tipos = new ArrayList<>();
 
         Registro registro = new Registro(); //novo registro 
-        
 
         try {
             in = new DataInputStream(new BufferedInputStream(new FileInputStream(nomeTabela.toLowerCase() + "_atributos.dat")));
@@ -806,8 +618,7 @@ public class Gerenciador {
             //registro.chave = teclado.nextInt();
             //Inteiro inteiro = new Inteiro(registro.chave);
             //registro.atributos.add(0, inteiro);
-            
-            
+
             //chave não pode entrar em atributos
             for (int i = 0; i < tipos.size(); i++) {
                 System.out.println("Digite o valor do atributo " + nomes.get(i) + " da tabela " + nomeTabela);
@@ -848,28 +659,60 @@ public class Gerenciador {
                     registro.atributos.add(str);
                     registro.tamanhoRegistro += 20;
                 }
-              //registro.tamanhoRegistro += 1;
+                //registro.tamanhoRegistro += 1;
             }
-            
-            registro.tamanhoRegistro+= 5 ; //flag + prox;
+
+            registro.tamanhoRegistro += 5; //flag + prox;
             registro.flag = false;
             registro.prox = -1;
             Inteiro inteiro = (Inteiro) registro.atributos.get(0);
             registro.chave = inteiro.inteiro;
-            
+
             try {
                 EncadeamentoExterior encadeamento = new EncadeamentoExterior();
-    
-                //int nRegistros = encadeamento.numeroRegistros(nomeArquivoDados, false, false);
 
+                //int nRegistros = encadeamento.numeroRegistros(nomeArquivoDados, false, false);
                 //System.out.println(nRegistros);
-                encadeamento.insere(registro.chave ,registro.atributos, nomeArquivoHash, nomeArquivoDados,nomeTabela );
-                
+                encadeamento.insere(registro.chave, registro.atributos, nomeArquivoHash, nomeArquivoDados, nomeTabela);
+
             } catch (Exception f) {
 
             } finally {
 
             }
+
+        } finally {
+            arquivoHash.close();
+            arquivoDados.close();
+        }
+    }
+
+    private static void excluirRegistro(String nomeTabela, Scanner teclado) throws IOException {
+        System.out.println("Digite a chave do registro");
+
+        int chave = teclado.nextInt();
+        int retorno = -1;
+        String nomeArquivoHash = nomeTabela + "_hash.dat";
+        String nomeArquivoDados = nomeTabela + "_registros.dat";
+
+        RandomAccessFile arquivoHash = null;
+        RandomAccessFile arquivoDados = null;
+
+        try {
+            arquivoHash = new RandomAccessFile(nomeArquivoHash, "rw");
+            arquivoDados = new RandomAccessFile(nomeArquivoDados, "rw");
+
+            EncadeamentoExterior encadeamento = new EncadeamentoExterior();
+            retorno = encadeamento.exclui(chave, nomeArquivoHash, nomeArquivoDados, nomeTabela);
+
+            if (retorno == -1) {
+                System.out.println("Chave não encontrada");
+            } else {
+                System.out.println("Registro de endereço " + retorno + " removido");
+            }
+
+        } catch (Exception e) {
+            System.out.println("TABELA INEXISTENTE!");
 
         } finally {
             arquivoHash.close();
@@ -898,8 +741,8 @@ public class Gerenciador {
         }
 
     }
-    
-    public static  void lerHash (String nomeTabelaHash) throws FileNotFoundException, IOException{
+
+    public static void lerHash(String nomeTabelaHash) throws FileNotFoundException, IOException {
         DataInputStream in = null;
         //Zera a lista de funcionários
 
